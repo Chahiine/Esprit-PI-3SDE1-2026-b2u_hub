@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### E-mail local (mot de passe SMTP) ###
+src/main/resources/application-local.properties

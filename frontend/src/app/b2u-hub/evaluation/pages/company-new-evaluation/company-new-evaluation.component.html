@@ -1,0 +1,117 @@
+<div class="row mb-3">
+  <div class="col">
+    <a routerLink="/evaluation/entreprise" class="btn btn-link ps-0"
+      >← Retour à l’historique</a
+    >
+    <h2 class="mb-2">Évaluer un étudiant après un projet</h2>
+    <p class="text-muted">
+      Tâche avancée : assistant <strong>IA B2U-HUB</strong> pour rédiger un feedback
+      professionnel à partir des critères (API Spring Boot).
+    </p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="enregistrer()">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Projet terminé</label>
+        <select class="form-control" formControlName="projetId">
+          <option value="">— Choisir un projet —</option>
+          @for (p of projets(); track p.id) {
+            <option [value]="p.id">{{ p.titre }} — {{ p.etudiantNom }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <span class="form-label d-block fw-semibold">Étudiant concerné</span>
+        <p class="mb-0">{{ etudiantCourant() }}</p>
+        <p class="small text-muted mb-0">
+          Un e-mail de notification sera envoyé à : <strong>{{ emailEtudiant() }}</strong>
+        </p>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Note globale</label>
+        <app-star-rating-input
+          label="Note globale"
+          [value]="noteGlobale()"
+          (valueChange)="noteGlobale.set($event)"
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Qualité des livrables</label>
+        <app-star-rating-input
+          label="Qualité des livrables"
+          [value]="qualiteLivraisons()"
+          (valueChange)="qualiteLivraisons.set($event)"
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Communication</label>
+        <app-star-rating-input
+          label="Communication"
+          [value]="communication()"
+          (valueChange)="communication.set($event)"
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Professionnalisme</label>
+        <app-star-rating-input
+          label="Professionnalisme"
+          [value]="professionnalisme()"
+          (valueChange)="professionnalisme.set($event)"
+        />
+      </div>
+
+      <div class="mb-3 p-3 border rounded" style="background: #f8f9fc">
+        <h5 class="mb-2">Assistant IA — génération de feedback</h5>
+        <p class="small text-muted mb-2">
+          Analyse multi-critères → texte structuré + points forts / axes d’amélioration.
+        </p>
+        <button
+          type="button"
+          class="btn_one"
+          [disabled]="aiLoading() || !noteGlobale()"
+          (click)="genererFeedbackIa()"
+        >
+          @if (aiLoading()) {
+            Génération en cours…
+          } @else {
+            Générer le feedback avec l’IA
+          }
+        </button>
+        @if (aiError()) {
+          <div class="text-danger small mt-2">{{ aiError() }}</div>
+        }
+        @if (aiResult(); as ai) {
+          <div class="mt-3 small">
+            <p class="mb-1"><strong>{{ ai.modelLabel }}</strong> (confiance {{ ai.confidenceScore }})</p>
+            <p class="text-muted">{{ ai.insightSummary }}</p>
+            @if (ai.strengths.length) {
+              <p class="mb-0 mt-2"><strong>Points forts</strong> — {{ ai.strengths.join(' ') }}</p>
+            }
+            @if (ai.improvements.length) {
+              <p class="mb-0 mt-1"><strong>Axes d’amélioration</strong> — {{ ai.improvements.join(' ') }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Feedback écrit</label>
+        <textarea
+          class="form-control"
+          rows="6"
+          formControlName="commentaire"
+          placeholder="Utilisez l’IA ou rédigez manuellement…"
+        ></textarea>
+      </div>
+
+      <button type="submit" class="btn_one" [disabled]="form.invalid || !noteGlobale()">
+        Publier l’évaluation (API)
+      </button>
+    </div>
+  </div>
+</form>

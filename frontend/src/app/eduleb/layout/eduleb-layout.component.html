@@ -1,0 +1,225 @@
+<div id="navigation" class="navbar-light bg-faded site-navigation">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-20 align-self-center">
+        <div class="site-logo">
+          <a routerLink="/home"
+            ><img src="/eduleb/assets/img/logo.png" alt="Eduleb"
+          /></a>
+        </div>
+      </div>
+
+      <div class="col-60 d-flex">
+        <nav id="main-menu">
+          <ul>
+            <li class="menu-item-has-children">
+              <a href="#">Home</a>
+              <ul>
+                <li><a routerLink="/home" routerLinkActive="active">Home 01</a></li>
+                <li><a routerLink="/home-2" routerLinkActive="active">Home 02</a></li>
+              </ul>
+            </li>
+            <li class="menu-item-has-children">
+              <a href="#">B2U-HUB</a>
+              <ul>
+                <li>
+                  <a routerLink="/evaluation/entreprise" routerLinkActive="active"
+                    >Évaluations (entreprise)</a
+                  >
+                </li>
+                <li>
+                  <a routerLink="/evaluation/etudiant" routerLinkActive="active"
+                    >Mon espace (étudiant)</a
+                  >
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a routerLink="/about" routerLinkActive="active">About</a>
+            </li>
+            <li class="menu-item-has-children">
+              <a routerLink="/course" routerLinkActive="active">Course</a>
+              <ul>
+                <li><a routerLink="/course">Course</a></li>
+                <li><a routerLink="/course-details">Course Details</a></li>
+              </ul>
+            </li>
+            <li class="menu-item-has-children">
+              <a href="#">Pages</a>
+              <ul>
+                <li><a routerLink="/instructors">Instructor</a></li>
+                <li><a routerLink="/instructor-details">Instructor Details</a></li>
+                <li><a routerLink="/pricing">Pricing Plan</a></li>
+                <li><a routerLink="/faq">Faq Page</a></li>
+                <li><a routerLink="/not-found">404</a></li>
+              </ul>
+            </li>
+            <li class="menu-item-has-children">
+              <a routerLink="/blog" routerLinkActive="active">Blog</a>
+              <ul>
+                <li><a routerLink="/blog">Blog</a></li>
+                <li><a routerLink="/blog-single">Blog Details</a></li>
+              </ul>
+            </li>
+            <li>
+              <a routerLink="/contact" routerLinkActive="active">Contact</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="col-20 d-none d-xl-block text-end align-self-center">
+        <a href="#" class="header-btn">Sign In</a>
+        <a routerLink="/contact" class="btn_one">Sign Up</a>
+      </div>
+
+      <ul class="mobile_menu">
+        <li>
+          <a href="#">Home</a>
+          <ul class="sub-menu">
+            <li><a routerLink="/home">Home 01</a></li>
+            <li><a routerLink="/home-2">Home 02</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">B2U-HUB</a>
+          <ul class="sub-menu">
+            <li><a routerLink="/evaluation/entreprise">Évaluations (entreprise)</a></li>
+            <li><a routerLink="/evaluation/etudiant">Mon espace (étudiant)</a></li>
+          </ul>
+        </li>
+        <li><a routerLink="/about">About</a></li>
+        <li>
+          <a href="#">Course</a>
+          <ul class="sub-menu">
+            <li><a routerLink="/course">Course</a></li>
+            <li><a routerLink="/course-details">Course Deails</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#">Pages</a>
+          <ul class="sub-menu">
+            <li><a routerLink="/instructors">Instructor</a></li>
+            <li><a routerLink="/instructor-details">Instructor Details</a></li>
+            <li><a routerLink="/pricing">Pricing Plan</a></li>
+            <li><a routerLink="/faq">Faq Page</a></li>
+            <li><a routerLink="/not-found">404</a></li>
+          </ul>
+        </li>
+        <li>
+          <a routerLink="/blog">Blog</a>
+          <ul class="sub-menu">
+            <li><a routerLink="/blog">Blog</a></li>
+            <li><a routerLink="/blog-single">Blog Details</a></li>
+          </ul>
+        </li>
+        <li><a routerLink="/contact">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<router-outlet />
+
+<div class="footer section-padding">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-3 col-sm-6 col-xs-12">
+        <div class="single_footer">
+          <a routerLink="/home"
+            ><img src="/eduleb/assets/img/logo.png" alt=""
+          /></a>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vitae
+            risus nec dui venenatis dignissim.
+          </p>
+          <div class="social_profile">
+            <ul>
+              <li>
+                <a class="f_facebook" href="#"><i class="fa-solid fa-x"></i></a>
+              </li>
+              <li>
+                <a class="f_twitter" href="#"><i class="fa-brands fa-facebook-f"></i></a>
+              </li>
+              <li>
+                <a class="f_instagram" href="#"><i class="fa-brands fa-instagram"></i></a>
+              </li>
+              <li>
+                <a class="f_linkedin" href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-sm-6 col-xs-12">
+        <div class="single_footer">
+          <h4>About Eduleb</h4>
+          <ul>
+            <li><a routerLink="/about">About us</a></li>
+            <li><a href="#">Instructor Registration</a></li>
+            <li><a href="#">Become A Teacher</a></li>
+            <li><a routerLink="/instructors">All Instrustors</a></li>
+            <li><a routerLink="/faq">Asked Question</a></li>
+            <li><a routerLink="/contact">Contact us</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-2 col-sm-6 col-xs-12">
+        <div class="single_footer">
+          <h4>Popular Courese</h4>
+          <ul>
+            <li><a href="#">Development</a></li>
+            <li><a href="#">Arts & design</a></li>
+            <li><a href="#">Visual Design</a></li>
+            <li><a href="#">Graphic Design</a></li>
+            <li><a href="#">Code Inspection</a></li>
+            <li><a href="#">Digital Marketing</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-3 col-sm-6 col-xs-12">
+        <div class="single_footer">
+          <h4>Contact Info</h4>
+          <div class="sf_contact">
+            <span class="ti-map"></span>
+            <p>2570 Quadra Street Victoria Road, New York, Canada</p>
+          </div>
+          <div class="sf_contact">
+            <span class="ti-mobile"></span>
+            <p>+88 457 845 695</p>
+          </div>
+          <div class="sf_contact">
+            <span class="ti-mobile"></span>
+            <p><a href="tel:+88457845695">Contact Whatsapp</a></p>
+          </div>
+          <div class="sf_contact">
+            <span class="ti-email"></span>
+            <p>example&#64;yourmail.com</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-sm-6 col-xs-12">
+        <div class="single_footer">
+          <h4>Download App</h4>
+          <p>Download our app from app store and goole play store.</p>
+          <a routerLink="/home"
+            ><img src="/eduleb/assets/img/google-play.jpg" class="foot_img" alt=""
+          /></a>
+          <a routerLink="/home"
+            ><img src="/eduleb/assets/img/app-store.jpg" class="foot_img" alt=""
+          /></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="foot_copy">
+  <div class="footer_copyright">
+    <p>
+      &copy; 2024. All Rights Reserved by
+      <a href="https://bestwpware.com/">Bestwpware</a> • Distributed by
+      <a href="https://themewagon.com">ThemeWagon</a>
+    </p>
+  </div>
+</div>

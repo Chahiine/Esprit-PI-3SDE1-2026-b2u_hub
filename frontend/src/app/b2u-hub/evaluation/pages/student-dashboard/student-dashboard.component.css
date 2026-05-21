@@ -1,0 +1,91 @@
+.student-hero {
+  background: linear-gradient(135deg, #1a2237 0%, #2d3a5c 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.student-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #f5a623;
+  color: #1a2237;
+  font-weight: 700;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-card {
+  border: 1px solid #e8ecf4;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  background: #fff;
+  height: 100%;
+  border-left: 4px solid #1a2237;
+}
+
+.stat-card.accent-gold {
+  border-left-color: #f5a623;
+}
+
+.stat-card.accent-green {
+  border-left-color: #28a745;
+}
+
+.stat-card h3 {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+  color: #1a2237;
+}
+
+.feedback-card {
+  border: 1px solid #e8ecf4;
+  border-radius: 10px;
+  padding: 1.5rem;
+  background: #fff;
+  height: 100%;
+  transition: box-shadow 0.2s ease;
+}
+
+.feedback-card:hover {
+  box-shadow: 0 8px 24px rgba(26, 34, 55, 0.08);
+}
+
+.feedback-card .badge-score {
+  background: #f0f4ff;
+  color: #1a2237;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.panel-card {
+  border: 1px solid #e8ecf4;
+  border-radius: 10px;
+  padding: 1.5rem;
+  background: #fafbfc;
+}
+
+.eval-row {
+  padding: 1rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.eval-row:last-child {
+  border-bottom: none;
+}
+
+.recommend-yes {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.recommend-no {
+  color: #dc3545;
+  font-weight: 600;
+}

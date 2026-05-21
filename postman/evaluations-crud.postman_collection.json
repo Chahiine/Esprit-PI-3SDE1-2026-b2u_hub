@@ -1,0 +1,324 @@
+{
+  "info": {
+    "_postman_id": "f4c3d2f6-97f0-46f7-9a15-5bb91fcb6412",
+    "name": "B2U-HUB Evaluations CRUD",
+    "description": "Collection de demonstration rapide pour le CRUD complet des evaluations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Test E-mail (Gmail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"to\": \"{{studentEmail}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/mail/test",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "mail", "test"]
+        },
+        "description": "Teste SMTP avant de publier une evaluation. Requiert application-local.properties configure."
+      }
+    },
+    {
+      "name": "Register Student — Youssef Trabelsi",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Youssef\",\n  \"lastName\": \"Trabelsi\",\n  \"email\": \"youssef.trabelsi@etudiant.tn\",\n  \"password\": \"b2u2026\",\n  \"role\": \"STUDENT\",\n  \"skills\": \"Java, Spring Boot, NLP, Angular\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "register"]
+        }
+      }
+    },
+    {
+      "name": "Register Student — Ines Gharbi",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Ines\",\n  \"lastName\": \"Gharbi\",\n  \"email\": \"ines.gharbi@etudiant.tn\",\n  \"password\": \"b2u2026\",\n  \"role\": \"STUDENT\",\n  \"skills\": \"Angular, UI/UX, PostgreSQL, Stripe\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "register"]
+        }
+      }
+    },
+    {
+      "name": "Create Evaluation — Youssef Trabelsi",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Youssef Trabelsi\",\n  \"studentEmail\": \"youssef.trabelsi@etudiant.tn\",\n  \"enterpriseName\": \"InnoSoft\",\n  \"projectTitle\": \"Chatbot support client (IA conversationnelle)\",\n  \"rating\": 5,\n  \"comment\": \"Excellent integration du chatbot, reponses pertinentes et bonne documentation technique.\",\n  \"projectDate\": \"2026-05-10\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/evaluations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "evaluations"]
+        }
+      }
+    },
+    {
+      "name": "Create Evaluation — Ines Gharbi",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Ines Gharbi\",\n  \"studentEmail\": \"ines.gharbi@etudiant.tn\",\n  \"enterpriseName\": \"ArtisanConnect\",\n  \"projectTitle\": \"Marketplace e-commerce artisanat local\",\n  \"rating\": 4,\n  \"comment\": \"Bonne realisation du parcours achat, design soigne. Quelques ajustements mineurs sur le panier.\",\n  \"projectDate\": \"2026-05-18\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/evaluations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "evaluations"]
+        }
+      }
+    },
+    {
+      "name": "Register Student — Chahine Sassi",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Chahine\",\n  \"lastName\": \"Sassi\",\n  \"email\": \"sassichahine68@gmail.com\",\n  \"password\": \"b2u2026\",\n  \"role\": \"STUDENT\",\n  \"skills\": \"Angular, Spring Boot, PostgreSQL\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/users/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "register"]
+        },
+        "description": "Cree l'etudiant Chahine Sassi en base (table users)."
+      }
+    },
+    {
+      "name": "AI — Suggest Feedback (Chahine Sassi)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"{{studentName}}\",\n  \"projectTitle\": \"Plateforme B2U-HUB Evaluation\",\n  \"rating\": 5,\n  \"quality\": 5,\n  \"communication\": 5,\n  \"professionalism\": 5\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/ai/suggest-feedback",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "ai", "suggest-feedback"]
+        },
+        "description": "IA pour Chahine Sassi."
+      }
+    },
+    {
+      "name": "Create Evaluation (Chahine Sassi + e-mail)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"{{studentName}}\",\n  \"studentEmail\": \"{{studentEmail}}\",\n  \"enterpriseName\": \"TechNova SAS\",\n  \"projectTitle\": \"Plateforme B2U-HUB Evaluation & Feedback\",\n  \"rating\": 5,\n  \"comment\": \"Excellent travail sur le module evaluation et l'integration IA. Communication claire et livrables de qualite.\",\n  \"projectDate\": \"2026-05-21\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/evaluations",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "evaluations"]
+        },
+        "description": "Publie une evaluation et envoie l'e-mail a sassichahine68@gmail.com"
+      }
+    },
+    {
+      "name": "AI — Suggest Feedback",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Samira Benali\",\n  \"projectTitle\": \"Refonte landing page produit\",\n  \"rating\": 5,\n  \"quality\": 5,\n  \"communication\": 4,\n  \"professionalism\": 5\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/ai/suggest-feedback",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "ai", "suggest-feedback"]
+        },
+        "description": "Tache avancee IA : genere un feedback professionnel a partir des notes."
+      }
+    },
+    {
+      "name": "Create Evaluation",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Samira Benali\",\n  \"studentEmail\": \"samira.benali@etudiant.tn\",\n  \"enterpriseName\": \"TechNova SAS\",\n  \"projectTitle\": \"Refonte landing page produit\",\n  \"rating\": 5,\n  \"comment\": \"Excellent travail, tres bonne communication.\",\n  \"projectDate\": \"2026-05-15\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/evaluations",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "evaluations"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get All Evaluations",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/evaluations",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "evaluations"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get Evaluation By ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/evaluations/{{evaluationId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "evaluations",
+            "{{evaluationId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Update Evaluation",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Ahmed Ben Ali\",\n  \"enterpriseName\": \"TechNova\",\n  \"projectTitle\": \"Plateforme IA pour matching - V2\",\n  \"rating\": 4,\n  \"comment\": \"Tres bon rendu, delais respectes.\",\n  \"projectDate\": \"2026-04-11\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/evaluations/{{evaluationId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "evaluations",
+            "{{evaluationId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete Evaluation",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/evaluations/{{evaluationId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "evaluations",
+            "{{evaluationId}}"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "evaluationId",
+      "value": "1"
+    },
+    {
+      "key": "studentName",
+      "value": "Chahine Sassi"
+    },
+    {
+      "key": "studentEmail",
+      "value": "sassichahine68@gmail.com"
+    },
+    {
+      "key": "student2Name",
+      "value": "Youssef Trabelsi"
+    },
+    {
+      "key": "student2Email",
+      "value": "youssef.trabelsi@etudiant.tn"
+    },
+    {
+      "key": "student3Name",
+      "value": "Ines Gharbi"
+    },
+    {
+      "key": "student3Email",
+      "value": "ines.gharbi@etudiant.tn"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+<div class="row mb-4">
+  <div class="col-lg-8">
+    <h2 class="mb-2">Espace entreprise</h2>
+    <p class="text-muted">
+      Historique des évaluations — source
+      @if (sourceApi()) {
+        <strong>API Spring Boot + PostgreSQL</strong>
+      } @else {
+        maquette locale (backend indisponible)
+      }.
+    </p>
+  </div>
+  <div class="col-lg-4 text-lg-end">
+    <a routerLink="/evaluation/entreprise/nouvelle" class="btn_one"
+      >Nouvelle évaluation <i class="ti-arrow-top-right"></i
+    ></a>
+  </div>
+</div>
+
+@if (emailStatus()) {
+  <div class="alert alert-info mb-4" role="alert">
+    {{ emailStatus() }}
+  </div>
+}
+
+<div class="row">
+  <div class="col-12">
+    <div class="section-title mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h3 class="mb-0">Historique des évaluations</h3>
+      <button type="button" class="btn btn-sm btn-outline-primary" (click)="loadEvaluations()">
+        Actualiser
+      </button>
+    </div>
+    @if (loading()) {
+      <p class="text-muted">Chargement…</p>
+    } @else if (evaluations().length === 0) {
+      <p class="text-muted">
+        Aucune évaluation en base pour le moment. Créez-en une via
+        <a routerLink="/evaluation/entreprise/nouvelle">Nouvelle évaluation</a>
+        ou Postman (POST /api/evaluations).
+      </p>
+    } @else {
+      <p class="small text-muted mb-2">{{ evaluations().length }} évaluation(s) chargée(s)</p>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Projet</th>
+              <th>Étudiant</th>
+              <th>E-mail</th>
+              <th>Entreprise</th>
+              <th>Note</th>
+              <th>Commentaire</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ev of evaluations(); track $index) {
+              <tr>
+                <td>{{ ev.projectDate }}</td>
+                <td>{{ ev.projectTitle }}</td>
+                <td>{{ ev.studentName }}</td>
+                <td>{{ ev.studentEmail }}</td>
+                <td>{{ ev.enterpriseName }}</td>
+                <td>{{ ev.rating }} / 5</td>
+                <td style="max-width: 320px">{{ ev.comment }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+<div class="row mt-5">
+  <div class="col-lg-6">
+    <div class="single_tp p-4" style="border: 1px solid #eee; border-radius: 8px">
+      <h4>Performances (aperçu)</h4>
+      <p class="mb-0">
+        Moyenne des notes globales sur l’historique affiché :
+        <strong>{{ moyenneNotes() || '—' }}</strong> / 5
+      </p>
+      <p class="text-muted small mt-2 mb-0">
+        En production, ce bloc serait alimenté par le scoring compétences et filtré par
+        étudiant / équipe.
+      </p>
+    </div>
+  </div>
+</div>

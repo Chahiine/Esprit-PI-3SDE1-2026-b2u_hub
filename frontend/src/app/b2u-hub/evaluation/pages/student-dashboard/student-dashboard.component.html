@@ -1,0 +1,219 @@
+<!-- En-tête profil -->
+<div class="student-hero">
+  <div class="row align-items-center">
+    <div class="col-auto">
+      <div class="student-avatar">{{ profile.initials }}</div>
+    </div>
+    <div class="col">
+      <p class="mb-1 opacity-75 small text-uppercase">Espace étudiant freelance</p>
+      <h2 class="mb-1 h3">{{ profile.fullName }}</h2>
+      <p class="mb-0 opacity-90">{{ profile.email }} · {{ profile.title }}</p>
+    </div>
+    <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-lg-end">
+      <a routerLink="/evaluation/etudiant/noter-entreprise" class="btn_one">
+        Évaluer une entreprise <i class="ti-arrow-top-right"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<p class="text-muted mb-4">
+  Feedbacks reçus —
+  @if (sourceApi()) {
+    <strong>API Spring Boot + PostgreSQL</strong>
+  } @else {
+    maquette locale
+  }
+  <button
+    type="button"
+    class="btn btn-link btn-sm p-0 ms-2 align-baseline"
+    (click)="loadFeedbacks()"
+  >
+    Actualiser
+  </button>
+</p>
+
+<!-- Statistiques -->
+<div class="row mb-5 g-3">
+  <div class="col-md-4">
+    <div class="stat-card">
+      <h3>{{ feedbacksApi().length }}</h3>
+      <p class="mb-0 text-muted">Feedbacks reçus</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card accent-gold">
+      <h3>{{ moyenneRecue() || '—' }}</h3>
+      <p class="mb-0 text-muted">Moyenne globale / 5</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card accent-green">
+      <h3>{{ mesEvaluationsEntreprises().length }}</h3>
+      <p class="mb-0 text-muted">Entreprises que vous avez notées</p>
+    </div>
+  </div>
+</div>
+
+<!-- Feedbacks entreprise -->
+<div class="section-title mb-3">
+  <h3>Évaluations reçues des entreprises</h3>
+</div>
+
+@if (loading()) {
+  <p class="text-muted">Chargement de vos feedbacks…</p>
+} @else if (feedbacksApi().length === 0) {
+  <div class="panel-card text-center py-5">
+    <p class="text-muted mb-2">Aucun feedback pour le moment.</p>
+    <p class="small text-muted mb-0">
+      Les entreprises publient leurs évaluations depuis l’espace entreprise — vous les verrez ici.
+    </p>
+  </div>
+} @else {
+  <p class="small text-muted mb-3">{{ feedbacksApi().length }} évaluation(s)</p>
+  <div class="row g-4 mb-5">
+    @for (ev of feedbacksApi(); track ev.id ?? $index) {
+      <div class="col-lg-6">
+        <article class="feedback-card">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+            <div>
+              <h4 class="h6 mb-1">{{ ev.projectTitle }}</h4>
+              <p class="small text-muted mb-0">
+                <i class="ti-briefcase"></i> {{ ev.enterpriseName }}
+              </p>
+            </div>
+            <span class="badge-score">{{ scoreLabel(ev.rating) }}</span>
+          </div>
+          <div class="mb-3">
+            <app-star-rating-display [value]="ev.rating" label="Note globale" />
+          </div>
+          <p class="mb-2 small text-muted">
+            <i class="ti-calendar"></i> {{ ev.projectDate }}
+          </p>
+          <div class="p-3 rounded" style="background: #f8f9fc">
+            <p class="small fw-semibold text-muted mb-1">Feedback</p>
+            <p class="mb-0">{{ ev.comment || '—' }}</p>
+          </div>
+        </article>
+      </div>
+    }
+  </div>
+}
+
+<!-- Vos évaluations d'entreprises -->
+<div class="section-title mb-3">
+  <h3>Vos évaluations d’entreprises</h3>
+</div>
+
+@if (mesEvaluationsEntreprises().length === 0) {
+  <div class="panel-card mb-5">
+    <p class="text-muted mb-2">Vous n’avez pas encore noté d’entreprise.</p>
+    <a routerLink="/evaluation/etudiant/noter-entreprise" class="btn_one btn-sm"
+      >Donner votre avis</a
+    >
+  </div>
+} @else {
+  <div class="panel-card mb-5">
+    @for (e of mesEvaluationsEntreprises(); track e.id) {
+      <div class="eval-row">
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+          <div>
+            <strong>{{ e.entrepriseNom }}</strong>
+            <span class="text-muted"> — {{ e.projetTitre }}</span>
+          </div>
+          <span class="text-muted small">{{ e.date }}</span>
+        </div>
+        <div class="mt-2 d-flex flex-wrap gap-3 small">
+          <span
+            >Expérience
+            <app-star-rating-display [value]="e.noteExperience" [showValue]="true"
+          /></span>
+          <span
+            >Brief
+            <app-star-rating-display [value]="e.clariteBrief" [showValue]="true"
+          /></span>
+          <span
+            >Accompagnement
+            <app-star-rating-display [value]="e.accompagnement" [showValue]="true"
+          /></span>
+          <span [class.recommend-yes]="e.recommanderait" [class.recommend-no]="!e.recommanderait">
+            {{ e.recommanderait ? '✓ Recommandée' : '✗ Non recommandée' }}
+          </span>
+        </div>
+        @if (e.commentaire) {
+          <p class="small text-muted mt-2 mb-0">{{ e.commentaire }}</p>
+        }
+      </div>
+    }
+  </div>
+}
+
+<!-- Répondre à un feedback -->
+<div class="row">
+  <div class="col-lg-8">
+    <div class="panel-card">
+      <h3 class="h5 mb-2">Répondre à un feedback</h3>
+      <p class="text-muted small mb-4">
+        Remerciez l’entreprise ou apportez une précision. Votre réponse sera visible dans
+        l’historique (maquette locale).
+      </p>
+
+      @if (ack()) {
+        <div class="alert alert-success py-2 mb-3">Réponse enregistrée avec succès.</div>
+      }
+
+      <form [formGroup]="reponseForm" (ngSubmit)="envoyerReponse()">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Feedback concerné</label>
+          <select class="form-control" formControlName="evaluationId">
+            <option value="">— Choisir un projet —</option>
+            @for (ev of feedbacksPourReponse(); track ev.id ?? $index) {
+              <option [value]="ev.id">{{ ev.projectTitle }} — {{ ev.enterpriseName }}</option>
+            }
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Votre message</label>
+          <textarea
+            class="form-control"
+            rows="4"
+            formControlName="texte"
+            placeholder="Merci pour ce retour constructif…"
+          ></textarea>
+        </div>
+        <button
+          type="submit"
+          class="btn_one"
+          [disabled]="reponseForm.invalid || feedbacksPourReponse().length === 0"
+        >
+          Envoyer la réponse
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-4 mt-4 mt-lg-0">
+    <div class="panel-card h-100" style="background: #fff">
+      <h4 class="h6 mb-3">Conseils B2U-HUB</h4>
+      <ul class="small text-muted ps-3 mb-0">
+        <li class="mb-2">Consultez chaque feedback pour améliorer votre profil freelance.</li>
+        <li class="mb-2">Répondez de façon professionnelle aux entreprises.</li>
+        <li class="mb-2">Évaluez vos expériences projet pour aider la communauté.</li>
+        <li>Votre moyenne alimente le scoring de crédibilité sur la plateforme.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+@if (mock.reponsesFeedback().length) {
+  <div class="section-title mb-2 mt-4">
+    <h3 class="h6">Historique de vos réponses</h3>
+  </div>
+  <ul class="list-unstyled small text-muted">
+    @for (r of mock.reponsesFeedback(); track r.id) {
+      <li class="mb-2 ps-3 border-start border-3 border-primary">
+        <strong>{{ r.date }}</strong> — {{ r.texte }}
+      </li>
+    }
+  </ul>
+}

@@ -1,0 +1,131 @@
+<div class="row mb-3">
+  <div class="col">
+    <a routerLink="/evaluation/etudiant" class="btn btn-link ps-0"
+      >← Retour à mon espace</a
+    >
+    <div class="rate-hero">
+      <h2 class="mb-2">Évaluer l’entreprise</h2>
+      <p class="text-muted mb-0">
+        Partagez votre expérience projet : brief, accompagnement et recommandation.
+      </p>
+    </div>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="enregistrer()">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="criteria-block mb-4">
+        <label class="form-label fw-semibold">Projet concerné</label>
+        <select class="form-control" formControlName="projetId">
+          <option value="">— Choisir un projet —</option>
+          @for (p of projets(); track p.id) {
+            <option [value]="p.id">{{ p.titre }} — {{ p.entrepriseNom }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="criteria-block mb-4">
+        <span class="form-label d-block fw-semibold mb-2">Entreprise</span>
+        <p class="mb-0 h5">{{ entrepriseCourante() }}</p>
+      </div>
+
+      <div class="criteria-block">
+        <h3 class="h6 mb-3">Critères d’évaluation</h3>
+
+        <div class="mb-4">
+          <label class="form-label">Expérience globale du projet</label>
+          <app-star-rating-input
+            label="Expérience"
+            [value]="noteExperience()"
+            (valueChange)="noteExperience.set($event)"
+          />
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Clarté du brief</label>
+          <app-star-rating-input
+            label="Clarté du brief"
+            [value]="clariteBrief()"
+            (valueChange)="clariteBrief.set($event)"
+          />
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Accompagnement</label>
+          <app-star-rating-input
+            label="Accompagnement"
+            [value]="accompagnement()"
+            (valueChange)="accompagnement.set($event)"
+          />
+        </div>
+
+        <div class="mb-0">
+          <span class="form-label d-block mb-2">Recommanderiez-vous cette entreprise ?</span>
+          <div class="btn-group" role="group">
+            <button
+              type="button"
+              class="btn btn-outline-success recommend-btn"
+              [class.active-yes]="recommanderait() === true"
+              (click)="recommanderait.set(true)"
+            >
+              Oui, je recommande
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger recommend-btn"
+              [class.active-no]="recommanderait() === false"
+              (click)="recommanderait.set(false)"
+            >
+              Non
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="criteria-block mt-4">
+        <label class="form-label fw-semibold">Commentaire détaillé</label>
+        <textarea
+          class="form-control"
+          rows="5"
+          formControlName="commentaire"
+          placeholder="Ce qui s’est bien passé, ce qui pourrait être amélioré pour les futurs freelances…"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        class="btn_one mt-2"
+        [disabled]="form.invalid || !noteExperience() || recommanderait() === null"
+      >
+        Publier mon évaluation
+      </button>
+    </div>
+
+    <div class="col-lg-4 mt-4 mt-lg-0">
+      <aside class="summary-panel">
+        <h3 class="h6 mb-3">Aperçu</h3>
+        <p class="small text-muted mb-2">Projet</p>
+        <p class="fw-semibold">{{ projetCourant()?.titre || '—' }}</p>
+        <hr />
+        <p class="small text-muted mb-2">Entreprise</p>
+        <p class="fw-semibold">{{ entrepriseCourante() }}</p>
+        <hr />
+        <p class="small text-muted mb-2">Vos notes</p>
+        <ul class="list-unstyled small mb-0">
+          <li class="mb-1">Expérience : {{ noteExperience() || '—' }}/5</li>
+          <li class="mb-1">Brief : {{ clariteBrief() || '—' }}/5</li>
+          <li class="mb-1">Accompagnement : {{ accompagnement() || '—' }}/5</li>
+          <li>
+            Recommandation :
+            @if (recommanderait() === true) {
+              <span class="text-success">Oui</span>
+            } @else if (recommanderait() === false) {
+              <span class="text-danger">Non</span>
+            } @else {
+              —
+            }
+          </li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</form>
