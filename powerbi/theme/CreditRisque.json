@@ -1,0 +1,32 @@
+{
+  "name": "Credit Risque Banque",
+  "dataColors": [
+    "#003366",
+    "#C9A227",
+    "#0055A4",
+    "#E8B923",
+    "#1A5276",
+    "#7D6608",
+    "#2874A6",
+    "#F4D03F"
+  ],
+  "background": "#F5F7FA",
+  "foreground": "#1A1A2E",
+  "tableAccent": "#003366",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#FFFFFF" } } }],
+        "border": [{ "show": true, "color": { "solid": { "color": "#E0E4EA" } } }],
+        "title": [{ "fontColor": { "solid": { "color": "#003366" } }, "fontSize": 11 }],
+        "labels": [{ "color": { "solid": { "color": "#333333" } } }]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [{ "color": { "solid": { "color": "#003366" } }, "fontSize": 28 }],
+        "categoryLabels": [{ "color": { "solid": { "color": "#666666" } }, "fontSize": 10 }]
+      }
+    }
+  }
+}
