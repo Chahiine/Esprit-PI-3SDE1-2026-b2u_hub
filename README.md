@@ -2,8 +2,6 @@
 
 Plateforme web de mise en relation **entreprises / freelances (étudiants)** avec module **Évaluation & Feedback**, assistant **IA** pour rédiger les commentaires, et **notification e-mail** à l'étudiant.
 
-**Dépôt GitHub :** https://github.com/Chahiine/Esprit-PI-3SDE1-2025-2026-b2u_hub
-
 ---
 
 ## Fonctionnalités
