@@ -6,27 +6,22 @@ import { Mission, MissionDto } from '../models/mission.model';
 
 @Injectable({ providedIn: 'root' })
 export class MissionService {
-
   private readonly api = `${environment.apiUrl}/api/missions`;
 
   constructor(private http: HttpClient) {}
 
-  // Public — open missions list
   getOpen(): Observable<Mission[]> {
     return this.http.get<Mission[]>(`${this.api}/open`);
   }
 
-  // Public — mission detail
   getById(id: number): Observable<Mission> {
     return this.http.get<Mission>(`${this.api}/${id}`);
   }
 
-  // Public — search
   search(keyword: string): Observable<Mission[]> {
     return this.http.get<Mission[]>(`${this.api}/search`, { params: { keyword } });
   }
 
-  // Authenticated
   getAll(): Observable<Mission[]> {
     return this.http.get<Mission[]>(`${this.api}`);
   }
@@ -51,29 +46,30 @@ export class MissionService {
     return this.http.get<any>(`${this.api}/stats`);
   }
 
-  // Helper: skills string → array
+  // ── Helpers ────────────────────────────────────────────────────
+
+  // Fix: lit directement skillsRequired (camelCase du JSON)
   skillsList(mission: Mission): string[] {
-    return (mission.skillsRequired ?? '')
+    const raw = mission.skillsRequired ?? '';
+    return raw
       .split(',')
-      .map(s => s.trim())
+      .map((s) => s.trim())
       .filter(Boolean);
   }
 
-  // Helper: budget display
   budgetLabel(mission: Mission): string {
     if (!mission.budget) return 'Budget à négocier';
     return `${mission.budget} TND`;
   }
 
-  // Helper: category → course image number (1-6)
   categoryImage(category: string): string {
     const map: Record<string, string> = {
-      'Frontend':  '1',
-      'Backend':   '2',
-      'Mobile':    '3',
-      'Design':    '4',
-      'DevOps':    '5',
-      'Data':      '6',
+      Frontend: '1',
+      Backend: '2',
+      Mobile: '3',
+      Design: '4',
+      DevOps: '5',
+      Data: '6',
     };
     return map[category] ?? '1';
   }

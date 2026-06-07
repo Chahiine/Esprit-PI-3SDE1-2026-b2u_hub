@@ -5,12 +5,12 @@ export interface Mission {
   title: string;
   description: string;
   enterpriseName: string;
-  skillsRequired: string;   // "Java, Angular, Spring"
+  skillsRequired: string; // ← camelCase — correspond au JSON backend
   status: MissionStatus;
-  level: string;            // BEGINNER | INTERMEDIATE | EXPERT
+  level: string;
   budget?: number;
-  deadline?: string;        // ISO date string
-  category: string;         // badge label on card
+  deadline?: string;
+  category: string;
   createdByUserId?: number;
   createdAt?: string;
 }
