@@ -1,0 +1,123 @@
+<!-- Section top -->
+<div class="section-top">
+  <div class="container">
+    <div class="col-lg-10 offset-lg-1 text-center">
+      <div class="section-top-title wow fadeInRight">
+        <h1>{{ isEdit ? 'Modifier la mission' : 'Publier une mission' }}</h1>
+        <ul class="breadcrumbs">
+          <li><a routerLink="/home">Home</a></li>
+          <li> / <a routerLink="/course">Missions</a></li>
+          <li> / {{ isEdit ? 'Modifier' : 'Publier' }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="our_event section-padding">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+
+        <div class="course-details-content section-bg p-4">
+
+          <div class="alert alert-success" *ngIf="success">✅ {{ success }}</div>
+          <div class="alert alert-danger"   *ngIf="error">⚠️ {{ error }}</div>
+
+          <div class="text-center py-4" *ngIf="loading">
+            <div class="spinner-border text-primary"></div>
+          </div>
+
+          <form (ngSubmit)="submit()" *ngIf="!loading">
+
+            <!-- Titre -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Titre de la mission *</label>
+              <input type="text" [(ngModel)]="form.title" name="title"
+                     class="form-control" placeholder="Ex: Développement d'une API REST Spring Boot"
+                     required>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Description *</label>
+              <textarea [(ngModel)]="form.description" name="description"
+                        class="form-control" rows="5"
+                        placeholder="Décrivez les objectifs, les livrables attendus..."
+                        required></textarea>
+            </div>
+
+            <!-- Entreprise -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Nom de l'entreprise *</label>
+              <input type="text" [(ngModel)]="form.enterpriseName" name="enterpriseName"
+                     class="form-control" placeholder="TechCorp Tunisie"
+                     required>
+            </div>
+
+            <!-- Skills -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Compétences requises</label>
+              <input type="text" [(ngModel)]="form.skillsRequired" name="skillsRequired"
+                     class="form-control" placeholder="Java, Spring Boot, Angular, PostgreSQL">
+              <small class="text-muted">Séparées par des virgules</small>
+            </div>
+
+            <!-- Row: Category + Level -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Catégorie</label>
+                <select [(ngModel)]="form.category" name="category" class="form-control">
+                  <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Niveau</label>
+                <select [(ngModel)]="form.level" name="level" class="form-control">
+                  <option value="BEGINNER">Débutant</option>
+                  <option value="INTERMEDIATE">Intermédiaire</option>
+                  <option value="EXPERT">Expert</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Row: Budget + Deadline -->
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Budget (TND)</label>
+                <input type="number" [(ngModel)]="form.budget" name="budget"
+                       class="form-control" placeholder="Ex: 500" min="0">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold">Date limite</label>
+                <input type="date" [(ngModel)]="form.deadline" name="deadline"
+                       class="form-control">
+              </div>
+            </div>
+
+            <!-- Statut (edit only) -->
+            <div class="mb-3" *ngIf="isEdit">
+              <label class="form-label fw-semibold">Statut</label>
+              <select [(ngModel)]="form.status" name="status" class="form-control">
+                <option value="OPEN">Ouverte</option>
+                <option value="IN_PROGRESS">En cours</option>
+                <option value="CLOSED">Fermée</option>
+              </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="details-buttons-area mt-4">
+              <button type="submit" class="custom-button theme-one" [disabled]="saving">
+                {{ saving ? 'Enregistrement...' : (isEdit ? 'Modifier' : 'Publier la mission') }}
+                <i class="fa fa-angle-right"></i>
+              </button>
+              <a routerLink="/course" class="custom-button bg-white ms-2">Annuler</a>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
