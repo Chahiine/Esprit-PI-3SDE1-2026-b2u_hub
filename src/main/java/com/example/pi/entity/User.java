@@ -32,6 +32,10 @@ public class User {
     private Role role;
 
     private String skills;
-
     private String cvUrl;
+    private String profileImageUrl;
+    private String bio;
+
+    @Builder.Default
+    private boolean active = true;
 }

@@ -1,0 +1,52 @@
+<div class="admin-page">
+  <h1>👥 Gestion des utilisateurs</h1>
+
+  <div class="stats-row" *ngIf="stats">
+    <div class="stat-card"><span class="stat-n">{{ stats.total }}</span><span>Total</span></div>
+    <div class="stat-card"><span class="stat-n">{{ stats.students }}</span><span>Étudiants</span></div>
+    <div class="stat-card"><span class="stat-n">{{ stats.companies }}</span><span>Entreprises</span></div>
+    <div class="stat-card"><span class="stat-n">{{ stats.admins }}</span><span>Admins</span></div>
+  </div>
+
+  <div class="alert-success-msg" *ngIf="msg">{{ msg }}</div>
+
+  <div class="filters">
+    <div class="filter-tabs">
+      <button [class.active]="filter==='ALL'"     (click)="filter='ALL';     loadUsers()">Tous</button>
+      <button [class.active]="filter==='STUDENT'" (click)="filter='STUDENT'; loadUsers()">Étudiants</button>
+      <button [class.active]="filter==='COMPANY'" (click)="filter='COMPANY'; loadUsers()">Entreprises</button>
+      <button [class.active]="filter==='ADMIN'"   (click)="filter='ADMIN';   loadUsers()">Admins</button>
+    </div>
+    <input type="search" [(ngModel)]="search" placeholder="Rechercher..." class="search-input">
+  </div>
+
+  <div class="table-wrap">
+    <div class="loading" *ngIf="loading">Chargement...</div>
+    <table *ngIf="!loading">
+      <thead>
+        <tr><th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Statut</th><th>CV</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of filtered">
+          <td>
+            <div class="user-cell">
+              <img *ngIf="u.profileImageUrl" [src]="u.profileImageUrl" class="avatar-sm">
+              <div *ngIf="!u.profileImageUrl" class="avatar-sm avatar-initials">{{ u.firstName?.[0] }}{{ u.lastName?.[0] }}</div>
+              <span>{{ u.firstName }} {{ u.lastName }}</span>
+            </div>
+          </td>
+          <td>{{ u.email }}</td>
+          <td><span class="role-badge role-{{ u.role?.toLowerCase() }}">{{ u.role }}</span></td>
+          <td><span class="status-badge" [class.active]="u.active" [class.banned]="!u.active">{{ u.active ? 'Actif' : 'Banni' }}</span></td>
+          <td><a *ngIf="u.cvUrl" [href]="u.cvUrl" target="_blank" class="link-cv">Voir CV</a><span *ngIf="!u.cvUrl">—</span></td>
+          <td class="actions">
+            <button class="btn-ban"   *ngIf="u.active"  (click)="ban(u)">Bannir</button>
+            <button class="btn-unban" *ngIf="!u.active" (click)="unban(u)">Réactiver</button>
+            <button class="btn-del"   (click)="delete(u)">Supprimer</button>
+          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0"><td colspan="6" class="empty">Aucun utilisateur trouvé.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
