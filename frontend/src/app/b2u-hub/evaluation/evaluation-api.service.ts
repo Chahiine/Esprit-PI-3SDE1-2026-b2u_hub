@@ -39,6 +39,22 @@ export interface EvaluationCreateResponse {
   emailMessage: string;
 }
 
+export interface FeedbackResponseDto {
+  id?: number;
+  evaluationId: number;
+  studentName: string;
+  studentEmail: string;
+  message: string;
+  createdAt?: string;
+}
+
+export interface FeedbackResponseCreateRequest {
+  evaluationId: number;
+  studentName: string;
+  studentEmail: string;
+  message: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class EvaluationApiService {
   private readonly http = inject(HttpClient);
@@ -78,6 +94,19 @@ export class EvaluationApiService {
       emailSent: false,
       emailMessage: 'Évaluation enregistrée avec succès.',
     };
+  }
+
+  createFeedbackResponse(
+    body: FeedbackResponseCreateRequest,
+  ): Observable<FeedbackResponseDto> {
+    return this.http.post<FeedbackResponseDto>(`${this.base}/feedback-responses`, body);
+  }
+
+  listFeedbackResponses(studentEmail: string): Observable<FeedbackResponseDto[]> {
+    return this.http.get<FeedbackResponseDto[]>(
+      `${this.base}/feedback-responses`,
+      { params: { studentEmail } },
+    );
   }
 
   listEvaluations(): Observable<EvaluationDto[]> {

@@ -2,7 +2,7 @@
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
-Write-Host "=== Demarrage Jenkins + SonarQube ===" -ForegroundColor Cyan
+Write-Host "=== Demarrage Jenkins + SonarQube + Prometheus + Grafana ===" -ForegroundColor Cyan
 docker compose -f docker-compose.devops.yml up -d --build
 
 Write-Host ""
@@ -11,8 +11,14 @@ Start-Sleep -Seconds 60
 
 Write-Host ""
 Write-Host "URLs :" -ForegroundColor Green
-Write-Host "  Jenkins   : http://localhost:8080"
-Write-Host "  SonarQube : http://localhost:9000  (admin / votre mot de passe)"
+Write-Host "  Jenkins    : http://localhost:8080"
+Write-Host "  SonarQube  : http://localhost:9000  (admin / votre mot de passe)"
+Write-Host "  Prometheus : http://localhost:9090"
+Write-Host "  Grafana    : http://localhost:3000  (admin / admin)"
+Write-Host "  Dashboard  : B2U-HUB > B2U-HUB Backend Monitoring"
+Write-Host ""
+Write-Host "Metriques backend : http://localhost:8081/actuator/prometheus"
+Write-Host "  (Lancez le backend IntelliJ ou Docker 8082 avant la demo monitoring)"
 Write-Host ""
 Write-Host "Mot de passe initial Jenkins :" -ForegroundColor Yellow
 docker exec b2u-jenkins cat /var/jenkins_home/secrets/initialAdminPassword 2>$null

@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import {
   EvaluationApiService,
   EvaluationDto,
+  FeedbackResponseDto,
 } from '../../evaluation-api.service';
 import { EvaluationMockService } from '../../evaluation-mock.service';
 import { STUDENT_PROFILE } from '../../student-profile';
@@ -23,7 +24,9 @@ export class StudentDashboardComponent implements OnInit {
 
   readonly profile = STUDENT_PROFILE;
   readonly feedbacksApi = signal<EvaluationDto[]>([]);
+  readonly reponsesFeedback = signal<FeedbackResponseDto[]>([]);
   readonly loading = signal(true);
+  readonly savingResponse = signal(false);
   readonly sourceApi = signal(false);
 
   readonly mesEvaluationsEntreprises = this.mock.evaluationsEtudiant;
@@ -34,6 +37,7 @@ export class StudentDashboardComponent implements OnInit {
   });
 
   readonly ack = signal(false);
+  readonly errorMsg = signal('');
 
   ngOnInit() {
     this.loadFeedbacks();
@@ -51,6 +55,7 @@ export class StudentDashboardComponent implements OnInit {
         this.feedbacksApi.set(mine);
         this.sourceApi.set(true);
         this.loading.set(false);
+        this.loadReponses();
       },
       error: () => {
         const local = this.mock.evaluationsEntreprise().map((ev) => ({
@@ -66,12 +71,34 @@ export class StudentDashboardComponent implements OnInit {
         this.feedbacksApi.set(local);
         this.sourceApi.set(false);
         this.loading.set(false);
+        this.reponsesFeedback.set(
+          this.mock.reponsesFeedback().map((r) => ({
+            id: Number(r.id.replace(/\D/g, '')) || undefined,
+            evaluationId: Number(r.evaluationId) || 0,
+            studentName: this.profile.fullName,
+            studentEmail: this.profile.email,
+            message: r.texte,
+            createdAt: r.date,
+          })),
+        );
       },
     });
   }
 
+  loadReponses() {
+    this.apiHttp.listFeedbackResponses(this.profile.email).subscribe({
+      next: (list) => this.reponsesFeedback.set(list),
+      error: () => this.reponsesFeedback.set([]),
+    });
+  }
+
   feedbacksPourReponse() {
-    return this.feedbacksApi();
+    return this.feedbacksApi().filter((e) => e.id != null);
+  }
+
+  reponsesPourEvaluation(evaluationId?: number) {
+    if (evaluationId == null) return [];
+    return this.reponsesFeedback().filter((r) => r.evaluationId === evaluationId);
   }
 
   envoyerReponse() {
@@ -80,13 +107,58 @@ export class StudentDashboardComponent implements OnInit {
       return;
     }
     const v = this.reponseForm.getRawValue();
-    this.mock.ajouterReponseFeedback({
-      evaluationId: v.evaluationId,
-      texte: v.texte.trim(),
-    });
+    const evaluationId = Number(v.evaluationId);
+    this.errorMsg.set('');
+    this.savingResponse.set(true);
+
+    if (!this.sourceApi()) {
+      this.mock.ajouterReponseFeedback({
+        evaluationId: v.evaluationId,
+        texte: v.texte.trim(),
+      });
+      this.reponsesFeedback.update((list) => [
+        {
+          evaluationId,
+          studentName: this.profile.fullName,
+          studentEmail: this.profile.email,
+          message: v.texte.trim(),
+          createdAt: new Date().toISOString().slice(0, 10),
+        },
+        ...list,
+      ]);
+      this.finaliserEnvoi();
+      return;
+    }
+
+    this.apiHttp
+      .createFeedbackResponse({
+        evaluationId,
+        studentName: this.profile.fullName,
+        studentEmail: this.profile.email,
+        message: v.texte.trim(),
+      })
+      .subscribe({
+        next: () => {
+          this.loadReponses();
+          this.finaliserEnvoi();
+        },
+        error: () => {
+          this.errorMsg.set("Impossible d'enregistrer la réponse. Réessayez.");
+          this.savingResponse.set(false);
+        },
+      });
+  }
+
+  private finaliserEnvoi() {
     this.reponseForm.reset({ evaluationId: '', texte: '' });
+    this.savingResponse.set(false);
     this.ack.set(true);
     setTimeout(() => this.ack.set(false), 3000);
+  }
+
+  formatDate(value?: string): string {
+    if (!value) return '—';
+    return value.length >= 10 ? value.slice(0, 10) : value;
   }
 
   moyenneRecue(): string {

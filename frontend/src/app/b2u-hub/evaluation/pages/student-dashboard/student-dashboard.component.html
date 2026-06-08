@@ -94,6 +94,15 @@
             <p class="small fw-semibold text-muted mb-1">Feedback</p>
             <p class="mb-0">{{ ev.comment || '—' }}</p>
           </div>
+          @if (reponsesPourEvaluation(ev.id).length) {
+            <div class="mt-3 ps-3 border-start border-3 border-primary">
+              <p class="small fw-semibold text-muted mb-1">Votre réponse</p>
+              @for (r of reponsesPourEvaluation(ev.id); track r.id ?? r.createdAt) {
+                <p class="small mb-1">{{ r.message }}</p>
+                <p class="small text-muted mb-0">{{ formatDate(r.createdAt) }}</p>
+              }
+            </div>
+          }
         </article>
       </div>
     }
@@ -154,12 +163,19 @@
     <div class="panel-card">
       <h3 class="h5 mb-2">Répondre à un feedback</h3>
       <p class="text-muted small mb-4">
-        Remerciez l’entreprise ou apportez une précision. Votre réponse sera visible dans
-        l’historique (maquette locale).
+        Remerciez l’entreprise ou apportez une précision. Votre réponse sera enregistrée
+        @if (sourceApi()) {
+          via l’API B2U-HUB.
+        } @else {
+          en mode démo locale.
+        }
       </p>
 
       @if (ack()) {
         <div class="alert alert-success py-2 mb-3">Réponse enregistrée avec succès.</div>
+      }
+      @if (errorMsg()) {
+        <div class="alert alert-danger py-2 mb-3">{{ errorMsg() }}</div>
       }
 
       <form [formGroup]="reponseForm" (ngSubmit)="envoyerReponse()">
@@ -184,9 +200,9 @@
         <button
           type="submit"
           class="btn_one"
-          [disabled]="reponseForm.invalid || feedbacksPourReponse().length === 0"
+          [disabled]="reponseForm.invalid || feedbacksPourReponse().length === 0 || savingResponse()"
         >
-          Envoyer la réponse
+          {{ savingResponse() ? 'Envoi…' : 'Envoyer la réponse' }}
         </button>
       </form>
     </div>
@@ -205,14 +221,14 @@
   </div>
 </div>
 
-@if (mock.reponsesFeedback().length) {
+@if (reponsesFeedback().length) {
   <div class="section-title mb-2 mt-4">
     <h3 class="h6">Historique de vos réponses</h3>
   </div>
   <ul class="list-unstyled small text-muted">
-    @for (r of mock.reponsesFeedback(); track r.id) {
+    @for (r of reponsesFeedback(); track r.id ?? r.createdAt) {
       <li class="mb-2 ps-3 border-start border-3 border-primary">
-        <strong>{{ r.date }}</strong> — {{ r.texte }}
+        <strong>{{ formatDate(r.createdAt) }}</strong> — {{ r.message }}
       </li>
     }
   </ul>
