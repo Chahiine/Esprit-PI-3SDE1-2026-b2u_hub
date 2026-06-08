@@ -11,11 +11,13 @@
     <form (ngSubmit)="submit()">
       <div class="form-group">
         <label>Email</label>
-        <input type="email" [(ngModel)]="email" name="email" class="form-control" placeholder="vous@exemple.com" required>
+        <input type="email" [(ngModel)]="email" name="email"
+               class="form-control" placeholder="vous@exemple.com" required>
       </div>
       <div class="form-group">
         <label>Mot de passe</label>
-        <input type="password" [(ngModel)]="password" name="password" class="form-control" placeholder="••••••••" required>
+        <input type="password" [(ngModel)]="password" name="password"
+               class="form-control" placeholder="••••••••" required>
       </div>
       <button type="submit" class="btn-auth" [disabled]="loading">
         {{ loading ? 'Connexion...' : 'Se connecter' }}
@@ -24,13 +26,21 @@
 
     <div class="auth-divider"><span>ou</span></div>
 
-    <button class="btn-linkedin" (click)="loginWithLinkedIn()">
-      <svg viewBox="0 0 24 24" fill="white" width="18" height="18">
-        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
-      </svg>
-      Continuer avec LinkedIn
-    </button>
+    <!-- Google OAuth2 -->
+    <a href="http://localhost:8081/oauth2/authorization/google"
+       style="display:flex;align-items:center;justify-content:center;gap:10px;
+              padding:11px 24px;border:1px solid #ddd;border-radius:8px;
+              background:#fff;color:#333;font-size:.9rem;
+              text-decoration:none;cursor:pointer;margin-bottom:1rem;
+              transition:box-shadow .2s"
+       onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,.12)'"
+       onmouseout="this.style.boxShadow='none'">
+      <img src="https://www.google.com/favicon.ico" width="20" height="20" alt="Google">
+      Continuer avec Google
+    </a>
 
-    <p class="auth-footer">Pas encore de compte ? <a routerLink="/register">Créer un compte</a></p>
+    <p class="auth-footer">
+      Pas encore de compte ? <a routerLink="/register">Créer un compte</a>
+    </p>
   </div>
 </div>

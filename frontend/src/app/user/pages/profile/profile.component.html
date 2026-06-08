@@ -7,7 +7,7 @@
   <div class="profile-header">
     <div class="avatar-wrap">
       <div class="avatar">
-        <img *ngIf="u.profileImageUrl" [src]="u.profileImageUrl" [alt]="u.firstName">
+        <img *ngIf="u.profileImageUrl" [src]="u.profileImageUrl" [alt]="u.firstName ?? 'User'">
         <span *ngIf="!u.profileImageUrl">{{ getInitials() }}</span>
       </div>
       <label class="avatar-upload-btn" title="Changer la photo">
@@ -17,8 +17,13 @@
     </div>
 
     <div class="profile-info">
-      <h1>{{ u.firstName }} {{ u.lastName }}</h1>
-      <span class="role-badge role-{{ u.role.toLowerCase() }}">{{ u.role }}</span>
+      <h1>{{ u.firstName ?? '' }} {{ u.lastName ?? '' }}</h1>
+
+      <!-- Fix: utilise getRoleClass() et getRoleLabel() pour éviter le crash -->
+      <span class="role-badge" [ngClass]="getRoleClass()">
+        {{ getRoleLabel() }}
+      </span>
+
       <p *ngIf="u.bio" class="bio">{{ u.bio }}</p>
       <p class="email">📧 {{ u.email }}</p>
     </div>
@@ -41,8 +46,6 @@
   <div class="profile-section">
     <h3>CV / Resume</h3>
     <div class="cv-area">
-
-      <!-- View CV — opens Cloudinary URL directly in new tab -->
       <a *ngIf="u.cvUrl"
          [href]="u.cvUrl"
          target="_blank"
@@ -50,15 +53,11 @@
          class="btn-cv">
         📄 View CV
       </a>
-
       <p *ngIf="!u.cvUrl" class="text-muted-sm">Aucun CV uploadé.</p>
-
-      <!-- Upload CV -->
       <label class="btn-upload-cv">
         {{ cvUploading ? 'Upload en cours...' : (u.cvUrl ? '⬆️ Remplacer le CV' : '⬆️ Uploader CV') }}
         <input type="file" accept=".pdf,.doc,.docx" (change)="onCvSelected($event)" hidden>
       </label>
-
     </div>
   </div>
 
@@ -77,14 +76,16 @@
     </div>
     <div class="form-group">
       <label>Bio</label>
-      <textarea [(ngModel)]="bio" class="form-control" rows="3" placeholder="Parlez de vous..."></textarea>
+      <textarea [(ngModel)]="bio" class="form-control" rows="3"
+                placeholder="Parlez de vous..."></textarea>
     </div>
     <div class="form-group">
       <label>Compétences <small>(séparées par virgule)</small></label>
-      <input type="text" [(ngModel)]="skills" class="form-control" placeholder="Java, Spring, Angular">
+      <input type="text" [(ngModel)]="skills" class="form-control"
+             placeholder="Java, Spring, Angular">
     </div>
     <div class="form-actions">
-      <button class="btn-save" (click)="saveProfile()">💾 Enregistrer</button>
+      <button class="btn-save"   (click)="saveProfile()">💾 Enregistrer</button>
       <button class="btn-cancel" (click)="cancelEdit()">Annuler</button>
     </div>
   </div>

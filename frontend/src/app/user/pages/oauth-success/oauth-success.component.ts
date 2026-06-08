@@ -26,21 +26,39 @@ export class OauthSuccessComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params: Params) => {
-      const token:  string | undefined = params['token'];
-      const userId: string | undefined = params['userId'];
-      const err:    string | undefined = params['error'];
+      const token:           string | undefined = params['token'];
+      const userId:          string | undefined = params['userId'];
+      const firstName:       string | undefined = params['firstName'];
+      const lastName:        string | undefined = params['lastName'];
+      const email:           string | undefined = params['email'];
+      const role:            string | undefined = params['role'];
+      const profileImageUrl: string | undefined = params['profileImageUrl'];
+      const err:             string | undefined = params['error'];
 
       if (err) {
-        this.error = `Connexion LinkedIn échouée : ${err}`;
+        this.error = `Connexion échouée : ${err}`;
         setTimeout(() => this.router.navigate(['/login']), 3000);
         return;
       }
 
       if (token) {
+        // Sauvegarde le token
         localStorage.setItem('b2u_token', token);
-        if (userId) {
-          localStorage.setItem('b2u_user', JSON.stringify({ token, userId: Number(userId) }));
-        }
+
+        // Sauvegarde l'utilisateur complet avec tous les champs
+        localStorage.setItem('b2u_user', JSON.stringify({
+          token,
+          userId:          Number(userId),
+          firstName:       firstName       ?? '',
+          lastName:        lastName        ?? '',
+          email:           email           ?? '',
+          role:            role            ?? 'STUDENT',
+          skills:          '',
+          bio:             '',
+          profileImageUrl: profileImageUrl ?? '',
+          cvUrl:           ''
+        }));
+
         this.router.navigate(['/profile']);
       } else {
         this.error = 'Token non reçu. Redirection...';

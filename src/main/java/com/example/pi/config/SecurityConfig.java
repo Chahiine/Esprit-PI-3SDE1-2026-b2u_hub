@@ -23,7 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.List;
-
+import com.example.pi.security.OAuth2SuccessHandler;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -31,7 +31,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
-
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -72,7 +72,10 @@ public class SecurityConfig {
                         // Tout le reste nécessite une authentification
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2 -> oauth2
+                .successHandler(oAuth2SuccessHandler)
+        );
         return http.build();
     }
 
