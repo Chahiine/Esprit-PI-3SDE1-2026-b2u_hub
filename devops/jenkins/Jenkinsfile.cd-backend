@@ -1,0 +1,46 @@
+// Job Jenkins : b2u-cd-backend (declenche automatiquement apres CI Backend)
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        GIT_REPO = 'https://github.com/Chahiine/Esprit-PI-3SDE1-2026-b2u_hub.git'
+        BACKEND_IMAGE = 'b2u-hub-backend'
+        CONTAINER_NAME = 'b2u-backend'
+        BACKEND_PORT = '8081'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                deleteDir()
+                sh 'git clone --branch main --depth 1 ' + GIT_REPO + ' .'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -f Dockerfile.backend -t ' + BACKEND_IMAGE + ':' + BUILD_NUMBER + ' -t ' + BACKEND_IMAGE + ':latest .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker rm -f ' + CONTAINER_NAME + ' 2>/dev/null || true'
+                sh 'docker run -d --name ' + CONTAINER_NAME + ' -p ' + BACKEND_PORT + ':8081 ' + BACKEND_IMAGE + ':latest'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CD Backend OK — image ' + BACKEND_IMAGE + ':' + BUILD_NUMBER + ' deployee sur port ' + BACKEND_PORT
+        }
+        failure {
+            echo 'CD Backend en echec.'
+        }
+    }
+}

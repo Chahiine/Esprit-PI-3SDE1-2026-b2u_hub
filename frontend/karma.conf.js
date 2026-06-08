@@ -1,4 +1,4 @@
-// Karma configuration — Angular 18 + Node 18
+// Karma configuration — Angular 18 + CI (Jenkins)
 module.exports = function (config) {
   config.set({
     basePath: '',
@@ -22,8 +22,15 @@ module.exports = function (config) {
       subdir: '.',
       reporters: [{ type: 'html' }, { type: 'text-summary' }],
     },
-    reporters: ['progress', 'kjhtml'],
+    reporters: ['progress'],
     browsers: ['Chrome'],
+    customLaunchers: {
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
+      },
+    },
     restartOnFileChange: true,
+    singleRun: false,
   });
 };

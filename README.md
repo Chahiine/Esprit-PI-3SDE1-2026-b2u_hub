@@ -100,13 +100,23 @@ Modèle recommandé : `gemini-2.5-flash`. Voir `application-local.properties.exa
 
 ---
 
-## DevOps (Jenkins + SonarQube + Docker)
+## DevOps (4 pipelines CI/CD)
+
+Architecture : **2 CI + 2 CD** (CD declenche automatiquement apres succes CI).
+
+| Pipeline | Job Jenkins | Role |
+|----------|-------------|------|
+| CI Backend | `b2u-ci-backend` | Maven, tests, SonarQube |
+| CI Frontend | `b2u-ci-frontend` | npm, tests, build Angular |
+| CD Backend | `b2u-cd-backend` | Docker + deploy port 8081 |
+| CD Frontend | `b2u-cd-frontend` | Docker + deploy port 4200 |
 
 Guide complet : [`devops/DEVOPS-PIPELINE.md`](devops/DEVOPS-PIPELINE.md)
 
 ```powershell
 cd devops
 .\start-devops.ps1
+.\rebuild-jenkins.ps1   # si docker/node manquant
 ```
 
 | Service | URL |

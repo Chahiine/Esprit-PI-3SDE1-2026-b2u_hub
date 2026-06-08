@@ -1,160 +1,158 @@
-# Pipeline DevOps — B2U-HUB
+# Pipeline DevOps — B2U-HUB (4 pipelines CI/CD)
 
-Jenkins + SonarQube + Docker pour le projet **Esprit-PI-3SDE1-2026-b2u_hub**.
+Architecture conforme au cours PI : **2 CI + 2 CD**, avec declenchement automatique CD apres succes CI.
 
----
-
-## 1. Prérequis
-
-- **Docker Desktop** (Windows) démarré
-- **Git** installé
-- Ports libres : `8080` (Jenkins), `9000` (SonarQube)
+```
+b2u-ci-backend  ──success──>  b2u-cd-backend
+b2u-ci-frontend ──success──>  b2u-cd-frontend
+```
 
 ---
 
-## 2. Démarrer l'infrastructure
+## 1. Prerequis
+
+- Docker Desktop demarre
+- Ports libres : `8080` (Jenkins), `9000` (SonarQube), `8081` (backend), `4200` (frontend)
 
 ```powershell
 cd devops
 .\start-devops.ps1
 ```
 
-| Service   | URL                      | Identifiants initiaux      |
-|-----------|--------------------------|----------------------------|
-| Jenkins   | http://localhost:8080    | Mot de passe affiché par le script |
-| SonarQube | http://localhost:9000    | `admin` / `admin` (changer au 1er login) |
-
-Vérifier Docker dans Jenkins :
+Si Docker manque dans Jenkins :
 
 ```powershell
-docker exec b2u-jenkins docker --version
-```
-
-Si erreur de permission sur le socket Docker, reconstruire Jenkins :
-
-```powershell
-docker compose -f devops/docker-compose.devops.yml up -d --build jenkins
+.\rebuild-jenkins.ps1
 ```
 
 ---
 
-## 3. Configuration Jenkins (une fois)
+## 2. Configuration Jenkins (une fois)
 
-### 3.1 Plugins
-
-**Manage Jenkins → Plugins → Available** — installer :
+### Plugins
 
 - Pipeline
 - Git
 - SonarQube Scanner
 
-Redémarrer Jenkins si demandé.
+### Credential SonarQube
 
-### 3.2 Credential SonarQube
+| Champ | Valeur |
+|-------|--------|
+| ID | `sonar-token` |
+| Type | Secret text |
+| Secret | token `squ_...` de SonarQube |
 
-1. SonarQube → **My Account → Security → Generate Tokens**
-2. Type : **Global Analysis Token** → copier le token `squ_...`
-3. Jenkins → **Manage Jenkins → Credentials → System → Global**
-4. **Add Credentials** :
-   - Kind : **Secret text**
-   - Secret : coller le token `squ_...`
-   - ID : **`sonar-token`** (obligatoire, exactement ce nom)
-   - Description : SonarQube analysis token
-
-### 3.3 Serveur SonarQube dans Jenkins
+### Serveur SonarQube
 
 **Manage Jenkins → System → SonarQube servers**
 
-| Champ              | Valeur                    |
-|--------------------|---------------------------|
-| Name               | `SonarQube`               |
-| Server URL         | `http://sonarqube:9000`   |
-| Server authentication token | `sonar-token`   |
-
-> Utiliser `sonarqube` (nom du service Docker), pas `localhost`, car Jenkins tourne dans un conteneur.
-
-### 3.4 Job Pipeline
-
-1. **New Item** → nom : `b2u-hub-pipeline` → type **Pipeline**
-2. **Configure → Pipeline** :
-   - Definition : **Pipeline script**
-   - Script : copier le contenu de [`jenkins-pipeline.groovy`](jenkins-pipeline.groovy)
-3. **Save** → **Build Now**
-
-Alternative SCM : Definition **Pipeline script from SCM**, repo GitHub, Script Path `Jenkinsfile`.
+| Champ | Valeur |
+|-------|--------|
+| Name | `SonarQube` |
+| URL | `http://sonarqube:9000` |
+| Token | `sonar-token` |
 
 ---
 
-## 4. Étapes du pipeline
+## 3. Creer les 4 jobs Pipeline
 
-| Stage                  | Action                                      |
-|------------------------|---------------------------------------------|
-| Checkout               | Clone `main` depuis GitHub                  |
-| Build & Test Backend   | `./mvnw clean verify`                       |
-| SonarQube Analysis     | `sonar:sonar` avec token `sonar-token`      |
-| Docker Build Backend   | Image `b2u-hub-backend`                     |
-| Docker Build Frontend  | Image `b2u-hub-frontend`                    |
+Pour chaque job : **New Item** → type **Pipeline** → **Pipeline script** → coller le fichier indique.
+
+| Job Jenkins | Fichier script | Role |
+|-------------|----------------|------|
+| `b2u-ci-backend` | `devops/jenkins/Jenkinsfile.ci-backend` | Build Maven, tests, SonarQube |
+| `b2u-ci-frontend` | `devops/jenkins/Jenkinsfile.ci-frontend` | npm ci, tests, build Angular |
+| `b2u-cd-backend` | `devops/jenkins/Jenkinsfile.cd-backend` | Docker build + deploy backend |
+| `b2u-cd-frontend` | `devops/jenkins/Jenkinsfile.cd-frontend` | Docker build + deploy frontend |
+
+**Important :** les noms des jobs doivent etre **exactement** ceux du tableau (le CI declenche le CD par nom).
 
 ---
 
-## 5. Fichiers du dépôt
+## 4. Detail des pipelines
 
-| Fichier | Rôle |
-|---------|------|
-| `Jenkinsfile` | Pipeline Linux (Jenkins Docker) |
-| `Jenkinsfile.windows` | Pipeline Windows natif (`bat`) |
-| `devops/jenkins-pipeline.groovy` | Script à coller dans l'UI Jenkins |
-| `devops/docker-compose.devops.yml` | Jenkins + SonarQube + PostgreSQL |
-| `devops/jenkins/Dockerfile` | Jenkins + Docker CLI + Maven |
+### CI Backend (`b2u-ci-backend`)
+
+1. Checkout GitHub
+2. `./mvnw clean verify` (tests + JaCoCo)
+3. SonarQube analysis
+4. **Post-success** → declenche `b2u-cd-backend`
+
+### CI Frontend (`b2u-ci-frontend`)
+
+1. Checkout GitHub
+2. `npm ci`
+3. `npm run test:ci` (Karma headless)
+4. `npm run build --configuration=production`
+5. **Post-success** → declenche `b2u-cd-frontend`
+
+### CD Backend (`b2u-cd-backend`)
+
+1. Checkout
+2. `docker build` image `b2u-hub-backend`
+3. `docker run` sur port **8081**
+
+### CD Frontend (`b2u-cd-frontend`)
+
+1. Checkout
+2. `docker build` image `b2u-hub-frontend`
+3. `docker run` sur port **4200**
+
+---
+
+## 5. Lancer les pipelines
+
+```text
+Build Now sur b2u-ci-backend   → declenche automatiquement b2u-cd-backend
+Build Now sur b2u-ci-frontend  → declenche automatiquement b2u-cd-frontend
+```
+
+Les jobs CD ne doivent **pas** etre lances manuellement en usage normal (sauf test).
+
+---
+
+## 6. URLs apres deploiement
+
+| Service | URL |
+|---------|-----|
+| Jenkins | http://localhost:8080 |
+| SonarQube | http://localhost:9000 |
+| Backend (CD) | http://localhost:8081 |
+| Frontend (CD) | http://localhost:4200 |
+
+---
+
+## 7. Depannage
+
+### `docker: not found`
+
+```powershell
+.\rebuild-jenkins.ps1
+```
+
+### `fatal: not in a git directory`
+
+Workspace corrompu → **Wipe Out Current Workspace** sur le job, puis relancer.
+
+### Tests frontend echouent (Chrome)
+
+Reconstruire Jenkins (Node 20 + Chromium inclus dans l'image).
+
+### CD backend ne demarre pas l'app
+
+Le backend a besoin de PostgreSQL en local. Pour la demo CD Docker seule, l'image est buildée et le conteneur est cree ; configurer PostgreSQL separement si necessaire.
+
+---
+
+## 8. Fichiers
+
+| Fichier | Description |
+|---------|-------------|
+| `devops/jenkins/Jenkinsfile.ci-backend` | Pipeline CI Backend |
+| `devops/jenkins/Jenkinsfile.ci-frontend` | Pipeline CI Frontend |
+| `devops/jenkins/Jenkinsfile.cd-backend` | Pipeline CD Backend |
+| `devops/jenkins/Jenkinsfile.cd-frontend` | Pipeline CD Frontend |
+| `devops/docker-compose.devops.yml` | Jenkins + SonarQube |
 | `Dockerfile.backend` | Image Spring Boot |
-| `frontend/Dockerfile` | Build Angular + nginx |
-| `sonar-project.properties` | Config analyse SonarQube |
-
----
-
-## 6. Dépannage
-
-### `bat` introuvable
-
-Jenkins tourne en **Linux** (conteneur). Utiliser `sh`, pas `bat`. Le fichier `Jenkinsfile` (racine) est le bon.
-
-### `-Dsonar.token=` vide
-
-- Vérifier que le credential ID est exactement **`sonar-token`**
-- Le pipeline utilise `withCredentials` — ne pas utiliser `SONAR_AUTH_TOKEN` seul
-
-### `withSonarQubeEnv` introuvable
-
-Installer le plugin **SonarQube Scanner**.
-
-### SonarQube : 401 Unauthorized
-
-Régénérer un token dans SonarQube et mettre à jour le credential Jenkins (**Change Password** sur `sonar-token`).
-
-### Docker build échoue dans Jenkins
-
-```powershell
-docker compose -f devops/docker-compose.devops.yml up -d --build jenkins
-docker exec b2u-jenkins docker ps
-```
-
----
-
-## 7. Build Docker manuel (hors Jenkins)
-
-```powershell
-# Backend
-docker build -f Dockerfile.backend -t b2u-hub-backend:latest .
-
-# Frontend
-docker build -f Dockerfile -t b2u-hub-frontend:latest ./frontend
-```
-
----
-
-## 8. Analyse SonarQube locale
-
-```powershell
-$env:SONAR_TOKEN = "squ_VOTRE_TOKEN"
-.\mvnw sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=$env:SONAR_TOKEN
-```
+| `frontend/Dockerfile` | Image Angular + nginx |

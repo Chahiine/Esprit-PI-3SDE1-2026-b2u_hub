@@ -1,0 +1,46 @@
+// Job Jenkins : b2u-cd-frontend (declenche automatiquement apres CI Frontend)
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        GIT_REPO = 'https://github.com/Chahiine/Esprit-PI-3SDE1-2026-b2u_hub.git'
+        FRONTEND_IMAGE = 'b2u-hub-frontend'
+        CONTAINER_NAME = 'b2u-frontend'
+        FRONTEND_PORT = '4200'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                deleteDir()
+                sh 'git clone --branch main --depth 1 ' + GIT_REPO + ' .'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -f Dockerfile -t ' + FRONTEND_IMAGE + ':' + BUILD_NUMBER + ' -t ' + FRONTEND_IMAGE + ':latest ./frontend'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker rm -f ' + CONTAINER_NAME + ' 2>/dev/null || true'
+                sh 'docker run -d --name ' + CONTAINER_NAME + ' -p ' + FRONTEND_PORT + ':80 ' + FRONTEND_IMAGE + ':latest'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CD Frontend OK — image ' + FRONTEND_IMAGE + ':' + BUILD_NUMBER + ' deployee sur port ' + FRONTEND_PORT
+        }
+        failure {
+            echo 'CD Frontend en echec.'
+        }
+    }
+}

@@ -1,0 +1,51 @@
+// Job Jenkins : b2u-ci-backend
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        GIT_REPO = 'https://github.com/Chahiine/Esprit-PI-3SDE1-2026-b2u_hub.git'
+        SONAR_PROJECT_KEY = 'b2u-hub'
+        SONAR_SERVER = 'SonarQube'
+        SONAR_TOKEN_ID = 'sonar-token'
+        CD_JOB = 'b2u-cd-backend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                deleteDir()
+                sh 'git clone --branch main --depth 1 ' + GIT_REPO + ' .'
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                sh 'chmod +x mvnw && ./mvnw clean verify -DskipTests=false -B'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv(SONAR_SERVER) {
+                    withCredentials([string(credentialsId: SONAR_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
+                        sh './mvnw sonar:sonar -Dsonar.projectKey=' + SONAR_PROJECT_KEY + ' -Dsonar.token=$SONAR_TOKEN -B'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CI Backend OK — declenchement CD Backend...'
+            build job: CD_JOB, wait: false, propagate: true
+        }
+        failure {
+            echo 'CI Backend en echec — CD Backend non declenche.'
+        }
+    }
+}

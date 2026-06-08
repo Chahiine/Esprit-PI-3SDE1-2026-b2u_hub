@@ -1,0 +1,56 @@
+// Job Jenkins : b2u-ci-frontend
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        GIT_REPO = 'https://github.com/Chahiine/Esprit-PI-3SDE1-2026-b2u_hub.git'
+        CD_JOB = 'b2u-cd-frontend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                deleteDir()
+                sh 'git clone --branch main --depth 1 ' + GIT_REPO + ' .'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run test:ci'
+                }
+            }
+        }
+
+        stage('Production Build') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run build -- --configuration=production'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CI Frontend OK — declenchement CD Frontend...'
+            build job: CD_JOB, wait: false, propagate: true
+        }
+        failure {
+            echo 'CI Frontend en echec — CD Frontend non declenche.'
+        }
+    }
+}
