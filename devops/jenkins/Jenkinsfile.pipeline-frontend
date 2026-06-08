@@ -18,7 +18,7 @@ pipeline {
         GIT_REPO = 'https://github.com/Chahiine/Esprit-PI-3SDE1-2026-b2u_hub.git'
         FRONTEND_IMAGE = 'b2u-hub-frontend'
         CONTAINER_NAME = 'b2u-frontend'
-        FRONTEND_PORT = '4200'
+        FRONTEND_PORT = '4201'
     }
 
     stages {
@@ -62,7 +62,7 @@ pipeline {
         stage('Deploy Frontend') {
             steps {
                 sh 'docker rm -f ' + CONTAINER_NAME + ' 2>/dev/null || true'
-                sh 'docker run -d --name ' + CONTAINER_NAME + ' -p ' + FRONTEND_PORT + ':80 ' + FRONTEND_IMAGE + ':latest'
+                sh 'docker run -d --name ' + CONTAINER_NAME + ' -p ' + FRONTEND_PORT + ':80 --restart unless-stopped ' + FRONTEND_IMAGE + ':latest'
             }
         }
     }

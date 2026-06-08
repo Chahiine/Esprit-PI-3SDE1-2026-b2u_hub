@@ -53,7 +53,7 @@ cd devops
 | Build & Test | `mvnw clean verify` |
 | SonarQube | Analyse qualite |
 | Docker Build | Image `b2u-hub-backend` |
-| Deploy | `docker run` port **8081** |
+| Deploy | `docker run` port **8082** (8081 = dev local) |
 | **Trigger** | Lance `b2u-pipeline-frontend` |
 
 ### Pipeline Frontend (`b2u-pipeline-frontend`)
@@ -66,7 +66,7 @@ cd devops
 | Tests | `npm run test:ci` |
 | Build | `npm run build` production |
 | Docker Build | Image `b2u-hub-frontend` |
-| Deploy | `docker run` port **4200** |
+| Deploy | `docker run` port **4201** (4200 = dev local) |
 
 ---
 
@@ -91,8 +91,10 @@ Le frontend se lance automatiquement apres le succes du backend.
 |---------|-----|
 | Jenkins | http://localhost:8080 |
 | SonarQube | http://localhost:9000 |
-| Backend | http://localhost:8081 |
-| Frontend | http://localhost:4200 |
+| Backend (Docker) | http://localhost:8082 |
+| Frontend (Docker) | http://localhost:4201 |
+| Backend (dev local) | http://localhost:8081 |
+| Frontend (dev local) | http://localhost:4200 |
 
 ---
 

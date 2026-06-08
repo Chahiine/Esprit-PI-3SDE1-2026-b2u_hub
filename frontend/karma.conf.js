@@ -30,7 +30,7 @@ module.exports = function (config) {
         flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'],
       },
     },
-    restartOnFileChange: true,
-    singleRun: false,
+    restartOnFileChange: false,
+    singleRun: true,
   });
 };
