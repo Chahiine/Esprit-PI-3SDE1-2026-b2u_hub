@@ -1,0 +1,72 @@
+// Pipeline pour Jenkins NATIF Windows (pas Docker)
+// Utiliser : Pipeline script from SCM → Script Path = Jenkinsfile.windows
+
+pipeline {
+    agent any
+
+    environment {
+        GIT_REPO          = 'https://github.com/Chahiine/Esprit-PI-3SDE1-2026-b2u_hub.git'
+        SONAR_HOST_URL    = 'http://localhost:9000'
+        SONAR_PROJECT_KEY = 'b2u-hub'
+        SONAR_TOKEN_ID    = 'sonar-token'
+        BACKEND_IMAGE     = 'b2u-hub-backend'
+        FRONTEND_IMAGE    = 'b2u-hub-frontend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: "${GIT_REPO}"
+            }
+        }
+
+        stage('Build & Test Backend') {
+            steps {
+                bat 'mvnw.cmd clean verify -DskipTests=false -B'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: SONAR_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
+                    bat """
+                        mvnw.cmd sonar:sonar ^
+                          -Dsonar.projectKey=%SONAR_PROJECT_KEY% ^
+                          -Dsonar.host.url=%SONAR_HOST_URL% ^
+                          -Dsonar.token=%SONAR_TOKEN% ^
+                          -B
+                    """
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: false
+                }
+            }
+        }
+
+        stage('Docker Build Backend') {
+            steps {
+                bat 'docker build -f Dockerfile.backend -t %BACKEND_IMAGE%:%BUILD_NUMBER% -t %BACKEND_IMAGE%:latest .'
+            }
+        }
+
+        stage('Docker Build Frontend') {
+            steps {
+                bat 'docker build -f Dockerfile -t %FRONTEND_IMAGE%:%BUILD_NUMBER% -t %FRONTEND_IMAGE%:latest ./frontend'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline OK.'
+        }
+        failure {
+            echo 'Pipeline en echec.'
+        }
+    }
+}

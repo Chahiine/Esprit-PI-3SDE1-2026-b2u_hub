@@ -1,7 +1,10 @@
 package com.example.pi.service;
 
+import com.example.pi.config.GeminiProperties;
 import com.example.pi.dto.AiFeedbackRequest;
 import com.example.pi.dto.AiFeedbackResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -9,16 +12,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Assistant IA pour rédiger des feedbacks d'évaluation (moteur hybride :
- * analyse des critères + génération de texte structuré).
- * En production, cette couche peut être branchée sur un LLM (OpenAI, Gemini, etc.).
+ * Assistant IA pour rédiger des feedbacks d'évaluation.
+ * Utilise Gemini si configuré, sinon le moteur local (règles métier).
  */
 @Service
 public class AiFeedbackService {
 
+    private static final Logger log = LoggerFactory.getLogger(AiFeedbackService.class);
+
+    private final GeminiProperties geminiProperties;
+    private final GeminiFeedbackClient geminiFeedbackClient;
+
+    public AiFeedbackService(GeminiProperties geminiProperties, GeminiFeedbackClient geminiFeedbackClient) {
+        this.geminiProperties = geminiProperties;
+        this.geminiFeedbackClient = geminiFeedbackClient;
+    }
+
     public AiFeedbackResponse suggestFeedback(AiFeedbackRequest request) {
         validate(request);
 
+        if (geminiProperties.isConfigured()) {
+            try {
+                return geminiFeedbackClient.suggestFeedback(request);
+            } catch (Exception e) {
+                log.warn("Gemini unavailable, using local fallback: {}", e.getMessage());
+            }
+        }
+
+        return suggestFeedbackLocally(request);
+    }
+
+    private AiFeedbackResponse suggestFeedbackLocally(AiFeedbackRequest request) {
         int rating = clamp(request.getRating());
         int quality = clamp(orDefault(request.getQuality(), rating));
         int communication = clamp(orDefault(request.getCommunication(), rating));

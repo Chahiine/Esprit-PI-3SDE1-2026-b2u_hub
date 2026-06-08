@@ -1,5 +1,5 @@
-# Jenkins + SonarQube pour pipeline DevOps (Windows + Docker Desktop)
-# Demarrage : docker compose -f devops/docker-compose.devops.yml up -d
+# Jenkins + SonarQube — Windows + Docker Desktop
+# Demarrage : .\devops\start-devops.ps1
 
 services:
   sonar-db:
@@ -49,6 +49,8 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - docker
     networks:
       - devops-net
 

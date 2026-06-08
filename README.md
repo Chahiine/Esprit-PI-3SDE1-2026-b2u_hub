@@ -12,7 +12,7 @@ Plateforme web de mise en relation **entreprises / freelances (étudiants)** ave
 | **Espace entreprise** | Évaluer un étudiant, historique API, IA feedback |
 | **Espace étudiant** | Voir les feedbacks reçus, noter une entreprise, répondre |
 | **API REST** | Spring Boot + PostgreSQL |
-| **IA** | `POST /api/ai/suggest-feedback` — moteur Java interne (règles + texte) |
+| **IA** | `POST /api/ai/suggest-feedback` — Gemini (si configuré) ou moteur local |
 | **E-mail** | Notification après publication (mode console ou Gmail SMTP) |
 
 ---
@@ -82,11 +82,37 @@ Collection Postman : `postman/evaluations-crud.postman_collection.json`
 
 ---
 
-## IA — quelle API ?
+## IA — Gemini
 
-**Aucune API externe** (pas OpenAI / ChatGPT dans la version actuelle).
+Le feedback est généré par **`AiFeedbackService.java`** :
 
-Le feedback est généré par **`AiFeedbackService.java`** (règles métier + assemblage de texte), exposé via **`POST /api/ai/suggest-feedback`**.
+1. **Gemini** (Google) si `app.ai.gemini.enabled=true` et clé API dans `application-local.properties`
+2. **Fallback local** (règles métier) si Gemini est indisponible
+
+```properties
+# application-local.properties (non versionné)
+app.ai.gemini.enabled=true
+app.ai.gemini.api-key=VOTRE_CLE
+app.ai.gemini.model=gemini-2.5-flash
+```
+
+Modèle recommandé : `gemini-2.5-flash`. Voir `application-local.properties.example`.
+
+---
+
+## DevOps (Jenkins + SonarQube + Docker)
+
+Guide complet : [`devops/DEVOPS-PIPELINE.md`](devops/DEVOPS-PIPELINE.md)
+
+```powershell
+cd devops
+.\start-devops.ps1
+```
+
+| Service | URL |
+|---------|-----|
+| Jenkins | http://localhost:8080 |
+| SonarQube | http://localhost:9000 |
 
 ---
 
