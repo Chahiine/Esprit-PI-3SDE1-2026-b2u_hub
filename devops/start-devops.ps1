@@ -18,6 +18,10 @@ Write-Host "Mot de passe initial Jenkins :" -ForegroundColor Yellow
 docker exec b2u-jenkins cat /var/jenkins_home/secrets/initialAdminPassword 2>$null
 Write-Host ""
 Write-Host "Verifier Docker dans Jenkins :" -ForegroundColor Yellow
-docker exec b2u-jenkins docker --version 2>$null
+$dockerVer = docker exec b2u-jenkins docker --version 2>&1
+Write-Host $dockerVer
+if ($dockerVer -match "not found") {
+    Write-Host "Docker manquant -> lancez : .\rebuild-jenkins.ps1" -ForegroundColor Red
+}
 Write-Host ""
 Write-Host "Pipeline a coller : devops/jenkins-pipeline.groovy"

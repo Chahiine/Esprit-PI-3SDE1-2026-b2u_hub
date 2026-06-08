@@ -42,15 +42,17 @@ services:
     build:
       context: ./jenkins
       dockerfile: Dockerfile
+    image: b2u-jenkins:latest
     container_name: b2u-jenkins
+    user: root
     ports:
       - "8080:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-    group_add:
-      - docker
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
     networks:
       - devops-net
 
