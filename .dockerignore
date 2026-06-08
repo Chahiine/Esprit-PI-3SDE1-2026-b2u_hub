@@ -1,0 +1,12 @@
+target/
+.git/
+.idea/
+.vscode/
+*.iml
+frontend/node_modules/
+frontend/dist/
+**/*.md
+postman/
+powerbi/
+scripts/
+devops/jenkins_home/
