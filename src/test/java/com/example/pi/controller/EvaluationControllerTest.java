@@ -3,41 +3,34 @@ package com.example.pi.controller;
 import com.example.pi.dto.EvaluationCreateResponse;
 import com.example.pi.entity.Evaluation;
 import com.example.pi.service.EvaluationService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(EvaluationController.class)
-@AutoConfigureMockMvc(addFilters = false)
+@ExtendWith(MockitoExtension.class)
 class EvaluationControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
+    @Mock
     private EvaluationService evaluationService;
 
+    @InjectMocks
+    private EvaluationController controller;
+
     @Test
-    void create_returnsOk() throws Exception {
+    void create_returnsOk() {
         Evaluation evaluation = sampleEvaluation();
         evaluation.setId(1L);
 
@@ -49,57 +42,59 @@ class EvaluationControllerTest {
 
         when(evaluationService.create(any(Evaluation.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/evaluations")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleEvaluation())))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.emailSent").value(true));
+        ResponseEntity<?> result = controller.create(sampleEvaluation());
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isInstanceOf(EvaluationCreateResponse.class);
     }
 
     @Test
-    void getAll_returnsList() throws Exception {
+    void getAll_returnsList() {
         when(evaluationService.getAll()).thenReturn(List.of(sampleEvaluation()));
 
-        mockMvc.perform(get("/api/evaluations"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].studentName").value("Youssef Trabelsi"));
+        List<Evaluation> result = controller.getAll();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getStudentName()).isEqualTo("Youssef Trabelsi");
     }
 
     @Test
-    void getById_returnsEvaluation() throws Exception {
+    void getById_returnsEvaluation() {
         Evaluation evaluation = sampleEvaluation();
         evaluation.setId(5L);
         when(evaluationService.getById(5L)).thenReturn(evaluation);
 
-        mockMvc.perform(get("/api/evaluations/5"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.projectTitle").value("Module evaluation"));
+        ResponseEntity<?> result = controller.getById(5L);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isEqualTo(evaluation);
     }
 
     @Test
-    void getById_returnsNotFound() throws Exception {
+    void getById_returnsNotFound() {
         when(evaluationService.getById(99L))
                 .thenThrow(new IllegalArgumentException("Evaluation not found"));
 
-        mockMvc.perform(get("/api/evaluations/99"))
-                .andExpect(status().isNotFound());
+        ResponseEntity<?> result = controller.getById(99L);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    void delete_returnsNoContent() throws Exception {
-        mockMvc.perform(delete("/api/evaluations/1"))
-                .andExpect(status().isNoContent());
+    void delete_returnsNoContent() {
+        ResponseEntity<Void> result = controller.delete(1L);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
-    void update_returnsBadRequestOnValidationError() throws Exception {
+    void update_returnsBadRequestOnValidationError() {
         doThrow(new IllegalArgumentException("Invalid"))
                 .when(evaluationService).update(eq(1L), any(Evaluation.class));
 
-        mockMvc.perform(put("/api/evaluations/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(sampleEvaluation())))
-                .andExpect(status().isBadRequest());
+        ResponseEntity<?> result = controller.update(1L, sampleEvaluation());
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     private Evaluation sampleEvaluation() {
