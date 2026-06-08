@@ -23,7 +23,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -f Dockerfile -t ' + FRONTEND_IMAGE + ':' + BUILD_NUMBER + ' -t ' + FRONTEND_IMAGE + ':latest ./frontend'
+                sh 'docker build -f frontend/Dockerfile -t ' + FRONTEND_IMAGE + ':' + BUILD_NUMBER + ' -t ' + FRONTEND_IMAGE + ':latest ./frontend'
             }
         }
 

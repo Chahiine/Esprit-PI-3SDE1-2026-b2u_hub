@@ -49,7 +49,7 @@ pipeline {
 
         stage('Docker Build Frontend') {
             steps {
-                bat 'docker build -f Dockerfile -t %FRONTEND_IMAGE%:%BUILD_NUMBER% -t %FRONTEND_IMAGE%:latest ./frontend'
+                bat 'docker build -f frontend/Dockerfile -t %FRONTEND_IMAGE%:%BUILD_NUMBER% -t %FRONTEND_IMAGE%:latest ./frontend'
             }
         }
     }
