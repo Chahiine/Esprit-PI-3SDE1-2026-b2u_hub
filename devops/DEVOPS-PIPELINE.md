@@ -92,7 +92,6 @@ Alternative SCM : Definition **Pipeline script from SCM**, repo GitHub, Script P
 | Checkout               | Clone `main` depuis GitHub                  |
 | Build & Test Backend   | `./mvnw clean verify`                       |
 | SonarQube Analysis     | `sonar:sonar` avec token `sonar-token`      |
-| Quality Gate           | Attente résultat SonarQube (non bloquant)   |
 | Docker Build Backend   | Image `b2u-hub-backend`                     |
 | Docker Build Frontend  | Image `b2u-hub-frontend`                    |
 
@@ -138,10 +137,6 @@ Régénérer un token dans SonarQube et mettre à jour le credential Jenkins (**
 docker compose -f devops/docker-compose.devops.yml up -d --build jenkins
 docker exec b2u-jenkins docker ps
 ```
-
-### Quality Gate en échec
-
-Normal au premier build. Le pipeline continue (`abortPipeline: false`). Consulter http://localhost:9000 → projet **b2u-hub**.
 
 ---
 
