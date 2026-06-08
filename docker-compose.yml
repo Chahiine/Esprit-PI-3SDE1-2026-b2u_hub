@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+
+  # ── Base de données ─────────────────────────────────────────
+  postgres:
+    image: postgres:17
+    container_name: b2u-postgres
+    environment:
+      POSTGRES_DB: b2u_hub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1312
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - b2u-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend Spring Boot ─────────────────────────────────────
+  backend:
+    build: .
+    container_name: b2u-backend
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/b2u_hub
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 1312
+      JWT_SECRET: b2u-hub-super-secret-key-must-be-at-least-32-chars-2024
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - b2u-network
+
+  # ── Frontend Angular + Nginx ────────────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: b2u-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - b2u-network
+
+  # ── Prometheus ──────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: b2u-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - b2u-network
+
+  # ── Grafana ─────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: b2u-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - b2u-network
+
+volumes:
+  postgres_data:
+  grafana_data:
+
+networks:
+  b2u-network:
+    driver: bridge
