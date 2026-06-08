@@ -1,9 +1,7 @@
 name: CD Frontend
 
 on:
-  workflow_run:
-    workflows: ["CI Frontend"]
-    types: [completed]
+  push:
     branches: [ wijden-merge, main ]
   workflow_dispatch:
 
@@ -11,7 +9,6 @@ jobs:
   cd-frontend:
     name: Docker Build & Push Frontend
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout code
