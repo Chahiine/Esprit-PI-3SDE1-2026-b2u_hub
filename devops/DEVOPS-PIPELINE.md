@@ -1,158 +1,104 @@
-# Pipeline DevOps — B2U-HUB (4 pipelines CI/CD)
+# Pipeline DevOps — B2U-HUB (2 pipelines)
 
-Architecture conforme au cours PI : **2 CI + 2 CD**, avec declenchement automatique CD apres succes CI.
+Architecture : **Backend** puis **Frontend**, avec trigger Jenkins automatique.
 
 ```
-b2u-ci-backend  ──success──>  b2u-cd-backend
-b2u-ci-frontend ──success──>  b2u-cd-frontend
+b2u-pipeline-backend  ──succes──>  b2u-pipeline-frontend
+         (1er)                           (2eme)
 ```
+
+Le backend declenche le frontend de **2 facons** :
+1. **build job** dans le `post { success }` du pipeline backend
+2. **Trigger upstream** configure dans le pipeline frontend
 
 ---
 
-## 1. Prerequis
-
-- Docker Desktop demarre
-- Ports libres : `8080` (Jenkins), `9000` (SonarQube), `8081` (backend), `4200` (frontend)
+## 1. Demarrer Jenkins + SonarQube
 
 ```powershell
 cd devops
 .\start-devops.ps1
-```
-
-Si Docker manque dans Jenkins :
-
-```powershell
 .\rebuild-jenkins.ps1
 ```
 
 ---
 
-## 2. Configuration Jenkins (une fois)
+## 2. Creer les 2 jobs Jenkins
 
-### Plugins
+### Job 1 : `b2u-pipeline-backend` (lancer en premier)
 
-- Pipeline
-- Git
-- SonarQube Scanner
+1. **New Item** → nom : `b2u-pipeline-backend` → **Pipeline**
+2. **Configure → Pipeline → Pipeline script**
+3. Coller le contenu de `devops/jenkins/Jenkinsfile.pipeline-backend`
+4. **Save**
 
-### Credential SonarQube
+### Job 2 : `b2u-pipeline-frontend` (declenche automatiquement)
 
-| Champ | Valeur |
+1. **New Item** → nom : `b2u-pipeline-frontend` → **Pipeline**
+2. **Configure → Pipeline → Pipeline script**
+3. Coller le contenu de `devops/jenkins/Jenkinsfile.pipeline-frontend`
+4. **Save**
+
+> Les noms doivent etre **exactement** `b2u-pipeline-backend` et `b2u-pipeline-frontend`.
+
+---
+
+## 3. Contenu des pipelines
+
+### Pipeline Backend (`b2u-pipeline-backend`)
+
+| Etape | Action |
 |-------|--------|
-| ID | `sonar-token` |
-| Type | Secret text |
-| Secret | token `squ_...` de SonarQube |
+| Checkout | Clone GitHub |
+| Build & Test | `mvnw clean verify` |
+| SonarQube | Analyse qualite |
+| Docker Build | Image `b2u-hub-backend` |
+| Deploy | `docker run` port **8081** |
+| **Trigger** | Lance `b2u-pipeline-frontend` |
 
-### Serveur SonarQube
+### Pipeline Frontend (`b2u-pipeline-frontend`)
 
-**Manage Jenkins → System → SonarQube servers**
-
-| Champ | Valeur |
+| Etape | Action |
 |-------|--------|
-| Name | `SonarQube` |
-| URL | `http://sonarqube:9000` |
-| Token | `sonar-token` |
+| Trigger | Attend succes de `b2u-pipeline-backend` |
+| Checkout | Clone GitHub |
+| Install | `npm ci` |
+| Tests | `npm run test:ci` |
+| Build | `npm run build` production |
+| Docker Build | Image `b2u-hub-frontend` |
+| Deploy | `docker run` port **4200** |
 
 ---
 
-## 3. Creer les 4 jobs Pipeline
+## 4. Lancer
 
-Pour chaque job : **New Item** → type **Pipeline** → **Pipeline script** → coller le fichier indique.
+**Build Now** sur `b2u-pipeline-backend` uniquement.
 
-| Job Jenkins | Fichier script | Role |
-|-------------|----------------|------|
-| `b2u-ci-backend` | `devops/jenkins/Jenkinsfile.ci-backend` | Build Maven, tests, SonarQube |
-| `b2u-ci-frontend` | `devops/jenkins/Jenkinsfile.ci-frontend` | npm ci, tests, build Angular |
-| `b2u-cd-backend` | `devops/jenkins/Jenkinsfile.cd-backend` | Docker build + deploy backend |
-| `b2u-cd-frontend` | `devops/jenkins/Jenkinsfile.cd-frontend` | Docker build + deploy frontend |
-
-**Important :** les noms des jobs doivent etre **exactement** ceux du tableau (le CI declenche le CD par nom).
+Le frontend se lance automatiquement apres le succes du backend.
 
 ---
 
-## 4. Detail des pipelines
+## 5. Configuration SonarQube (backend)
 
-### CI Backend (`b2u-ci-backend`)
-
-1. Checkout GitHub
-2. `./mvnw clean verify` (tests + JaCoCo)
-3. SonarQube analysis
-4. **Post-success** → declenche `b2u-cd-backend`
-
-### CI Frontend (`b2u-ci-frontend`)
-
-1. Checkout GitHub
-2. `npm ci`
-3. `npm run test:ci` (Karma headless)
-4. `npm run build --configuration=production`
-5. **Post-success** → declenche `b2u-cd-frontend`
-
-### CD Backend (`b2u-cd-backend`)
-
-1. Checkout
-2. `docker build` image `b2u-hub-backend`
-3. `docker run` sur port **8081**
-
-### CD Frontend (`b2u-cd-frontend`)
-
-1. Checkout
-2. `docker build` image `b2u-hub-frontend`
-3. `docker run` sur port **4200**
+- Credential Jenkins ID : `sonar-token`
+- Serveur SonarQube : Name `SonarQube`, URL `http://sonarqube:9000`
 
 ---
 
-## 5. Lancer les pipelines
-
-```text
-Build Now sur b2u-ci-backend   → declenche automatiquement b2u-cd-backend
-Build Now sur b2u-ci-frontend  → declenche automatiquement b2u-cd-frontend
-```
-
-Les jobs CD ne doivent **pas** etre lances manuellement en usage normal (sauf test).
-
----
-
-## 6. URLs apres deploiement
+## 6. URLs
 
 | Service | URL |
 |---------|-----|
 | Jenkins | http://localhost:8080 |
 | SonarQube | http://localhost:9000 |
-| Backend (CD) | http://localhost:8081 |
-| Frontend (CD) | http://localhost:4200 |
+| Backend | http://localhost:8081 |
+| Frontend | http://localhost:4200 |
 
 ---
 
-## 7. Depannage
+## 7. Fichiers
 
-### `docker: not found`
-
-```powershell
-.\rebuild-jenkins.ps1
-```
-
-### `fatal: not in a git directory`
-
-Workspace corrompu → **Wipe Out Current Workspace** sur le job, puis relancer.
-
-### Tests frontend echouent (Chrome)
-
-Reconstruire Jenkins (Node 20 + Chromium inclus dans l'image).
-
-### CD backend ne demarre pas l'app
-
-Le backend a besoin de PostgreSQL en local. Pour la demo CD Docker seule, l'image est buildée et le conteneur est cree ; configurer PostgreSQL separement si necessaire.
-
----
-
-## 8. Fichiers
-
-| Fichier | Description |
+| Fichier | Job Jenkins |
 |---------|-------------|
-| `devops/jenkins/Jenkinsfile.ci-backend` | Pipeline CI Backend |
-| `devops/jenkins/Jenkinsfile.ci-frontend` | Pipeline CI Frontend |
-| `devops/jenkins/Jenkinsfile.cd-backend` | Pipeline CD Backend |
-| `devops/jenkins/Jenkinsfile.cd-frontend` | Pipeline CD Frontend |
-| `devops/docker-compose.devops.yml` | Jenkins + SonarQube |
-| `Dockerfile.backend` | Image Spring Boot |
-| `frontend/Dockerfile` | Image Angular + nginx |
+| `devops/jenkins/Jenkinsfile.pipeline-backend` | `b2u-pipeline-backend` |
+| `devops/jenkins/Jenkinsfile.pipeline-frontend` | `b2u-pipeline-frontend` |

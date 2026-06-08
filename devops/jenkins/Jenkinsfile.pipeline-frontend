@@ -1,0 +1,78 @@
+// Job Jenkins : b2u-pipeline-frontend
+// Declenche automatiquement par b2u-pipeline-backend (trigger upstream)
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    triggers {
+        upstream(
+            upstreamProjects: 'b2u-pipeline-backend',
+            threshold: hudson.model.Result.SUCCESS
+        )
+    }
+
+    environment {
+        GIT_REPO = 'https://github.com/Chahiine/Esprit-PI-3SDE1-2026-b2u_hub.git'
+        FRONTEND_IMAGE = 'b2u-hub-frontend'
+        CONTAINER_NAME = 'b2u-frontend'
+        FRONTEND_PORT = '4200'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                deleteDir()
+                sh 'git clone --branch main --depth 1 ' + GIT_REPO + ' .'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run test:ci'
+                }
+            }
+        }
+
+        stage('Production Build') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run build -- --configuration=production'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -f frontend/Dockerfile -t ' + FRONTEND_IMAGE + ':' + BUILD_NUMBER + ' -t ' + FRONTEND_IMAGE + ':latest ./frontend'
+            }
+        }
+
+        stage('Deploy Frontend') {
+            steps {
+                sh 'docker rm -f ' + CONTAINER_NAME + ' 2>/dev/null || true'
+                sh 'docker run -d --name ' + CONTAINER_NAME + ' -p ' + FRONTEND_PORT + ':80 ' + FRONTEND_IMAGE + ':latest'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline Frontend OK — deploye sur port ' + FRONTEND_PORT
+        }
+        failure {
+            echo 'Pipeline Frontend en echec.'
+        }
+    }
+}

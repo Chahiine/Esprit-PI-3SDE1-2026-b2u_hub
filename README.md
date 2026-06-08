@@ -100,16 +100,16 @@ Modèle recommandé : `gemini-2.5-flash`. Voir `application-local.properties.exa
 
 ---
 
-## DevOps (4 pipelines CI/CD)
+## DevOps (2 pipelines Jenkins)
 
-Architecture : **2 CI + 2 CD** (CD declenche automatiquement apres succes CI).
+Architecture : **Backend** puis **Frontend** (trigger automatique Jenkins).
 
 | Pipeline | Job Jenkins | Role |
 |----------|-------------|------|
-| CI Backend | `b2u-ci-backend` | Maven, tests, SonarQube |
-| CI Frontend | `b2u-ci-frontend` | npm, tests, build Angular |
-| CD Backend | `b2u-cd-backend` | Docker + deploy port 8081 |
-| CD Frontend | `b2u-cd-frontend` | Docker + deploy port 4200 |
+| Backend | `b2u-pipeline-backend` | Maven, SonarQube, Docker, deploy :8081 |
+| Frontend | `b2u-pipeline-frontend` | npm, tests, build, Docker, deploy :4200 |
+
+Lancer **Build Now** sur `b2u-pipeline-backend` → declenche automatiquement le frontend.
 
 Guide complet : [`devops/DEVOPS-PIPELINE.md`](devops/DEVOPS-PIPELINE.md)
 

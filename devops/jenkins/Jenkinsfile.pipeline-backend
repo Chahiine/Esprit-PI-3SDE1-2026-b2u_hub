@@ -1,0 +1,68 @@
+// Job Jenkins : b2u-pipeline-backend
+// Declenche automatiquement b2u-pipeline-frontend en cas de succes
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout(true)
+    }
+
+    environment {
+        GIT_REPO = 'https://github.com/Chahiine/Esprit-PI-3SDE1-2026-b2u_hub.git'
+        SONAR_PROJECT_KEY = 'b2u-hub'
+        SONAR_SERVER = 'SonarQube'
+        SONAR_TOKEN_ID = 'sonar-token'
+        BACKEND_IMAGE = 'b2u-hub-backend'
+        CONTAINER_NAME = 'b2u-backend'
+        BACKEND_PORT = '8081'
+        DOWNSTREAM_JOB = 'b2u-pipeline-frontend'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                deleteDir()
+                sh 'git clone --branch main --depth 1 ' + GIT_REPO + ' .'
+            }
+        }
+
+        stage('Build & Test') {
+            steps {
+                sh 'chmod +x mvnw && ./mvnw clean verify -DskipTests=false -B'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv(SONAR_SERVER) {
+                    withCredentials([string(credentialsId: SONAR_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
+                        sh './mvnw sonar:sonar -Dsonar.projectKey=' + SONAR_PROJECT_KEY + ' -Dsonar.token=$SONAR_TOKEN -B'
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -f Dockerfile.backend -t ' + BACKEND_IMAGE + ':' + BUILD_NUMBER + ' -t ' + BACKEND_IMAGE + ':latest .'
+            }
+        }
+
+        stage('Deploy Backend') {
+            steps {
+                sh 'docker rm -f ' + CONTAINER_NAME + ' 2>/dev/null || true'
+                sh 'docker run -d --name ' + CONTAINER_NAME + ' -p ' + BACKEND_PORT + ':8081 ' + BACKEND_IMAGE + ':latest'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline Backend OK — declenchement du pipeline Frontend...'
+            build job: DOWNSTREAM_JOB, wait: false, propagate: true
+        }
+        failure {
+            echo 'Pipeline Backend en echec — Frontend non declenche.'
+        }
+    }
+}
