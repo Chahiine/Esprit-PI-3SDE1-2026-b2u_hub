@@ -1,0 +1,61 @@
+# B2U-HUB — Application (PostgreSQL + Backend + Frontend)
+# Usage : docker compose -f devops/docker-compose.apps.yml up -d --build
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: b2u-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "0000"
+      POSTGRES_DB: b2u_hub
+    ports:
+      - "5433:5432"
+    volumes:
+      - b2u_pg_data:/var/lib/postgresql/data
+    networks:
+      - b2u-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d b2u_hub"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  backend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.backend
+    image: b2u-hub-backend:latest
+    container_name: b2u-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8082:8081"
+    networks:
+      - b2u-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: b2u-hub-frontend:latest
+    container_name: b2u-frontend
+    depends_on:
+      - backend
+    ports:
+      - "4201:80"
+    networks:
+      - b2u-net
+    restart: unless-stopped
+
+volumes:
+  b2u_pg_data:
+
+networks:
+  b2u-net:
+    name: b2u-net
+    driver: bridge

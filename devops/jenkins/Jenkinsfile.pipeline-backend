@@ -50,8 +50,7 @@ pipeline {
 
         stage('Deploy Backend') {
             steps {
-                sh 'docker rm -f ' + CONTAINER_NAME + ' 2>/dev/null || true'
-                sh 'docker run -d --name ' + CONTAINER_NAME + ' -p ' + BACKEND_PORT + ':8081 --restart unless-stopped ' + BACKEND_IMAGE + ':latest'
+                sh 'docker compose -f devops/docker-compose.apps.yml up -d --build postgres backend'
             }
         }
     }

@@ -1,0 +1,125 @@
+<div class="row mb-3">
+  <div class="col">
+    <a routerLink="/missions/consulter" class="btn btn-link ps-0">← Retour aux missions</a>
+    <h2 class="mb-2">IA avancée — Matching missions</h2>
+    <p class="text-muted mb-0">
+      <strong>Différent du module évaluation</strong> : pas de génération de texte, mais
+      <strong>analyse de compatibilité</strong> (score %, forces, lacunes, recommandation)
+      via API externe Gemini.
+    </p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Profil étudiant</h5>
+        <form [formGroup]="form" (ngSubmit)="lancerMatching()">
+          <div class="mb-3">
+            <label class="form-label">Nom</label>
+            <input class="form-control" formControlName="studentName" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">E-mail</label>
+            <input class="form-control" type="email" formControlName="studentEmail" />
+            <p class="small text-muted mb-0">Si compétences vides, chargées depuis la base users.</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Compétences</label>
+            <textarea class="form-control" rows="3" formControlName="skills"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Localisation préférée</label>
+            <input class="form-control" formControlName="preferredLocation" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre de résultats</label>
+            <input class="form-control" type="number" min="1" max="10" formControlName="maxResults" />
+          </div>
+          <button type="submit" class="btn_one" [disabled]="loading()">
+            @if (loading()) {
+              Analyse en cours…
+            } @else {
+              Trouver mes missions compatibles
+            }
+          </button>
+        </form>
+        @if (error()) {
+          <p class="text-danger small mt-3 mb-0">{{ error() }}</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    @if (result(); as res) {
+      <div class="mb-3 p-3 rounded" style="background: #f8f9fc">
+        <p class="mb-1"><strong>Profil analysé :</strong> {{ res.studentSummary }}</p>
+        <p class="mb-1"><strong>Modèle :</strong> {{ res.modelLabel }}</p>
+        <p class="mb-0 text-muted small">{{ res.globalInsight }}</p>
+      </div>
+
+      @if (res.matches.length === 0) {
+        <p class="text-muted">Aucune mission ouverte à matcher. Publiez des missions d'abord.</p>
+      } @else {
+        @for (m of res.matches; track m.missionId) {
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                <div>
+                  <h5 class="mb-1">{{ m.title }}</h5>
+                  <p class="text-muted small mb-0">
+                    {{ m.companyName }}
+                    @if (m.location) {
+                      — {{ m.location }}
+                    }
+                  </p>
+                </div>
+                <span class="badge fs-6" [class]="scoreClass(m.matchScore)">
+                  {{ m.matchScore }}% — {{ m.matchLevel }}
+                </span>
+              </div>
+
+              @if (m.skillsRequired) {
+                <p class="small mb-2"><strong>Compétences mission :</strong> {{ m.skillsRequired }}</p>
+              }
+
+              <p class="mb-2">{{ m.recommendation }}</p>
+
+              <div class="row small">
+                <div class="col-md-6">
+                  <strong class="text-success">Forces</strong>
+                  <ul class="mb-0 ps-3">
+                    @for (s of m.strengths; track s) {
+                      <li>{{ s }}</li>
+                    }
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <strong class="text-warning">Lacunes</strong>
+                  <ul class="mb-0 ps-3">
+                    @for (g of m.gaps; track g) {
+                      <li>{{ g }}</li>
+                    }
+                  </ul>
+                </div>
+              </div>
+
+              @if (m.missionId) {
+                <a [routerLink]="['/missions', m.missionId]" class="btn btn-sm btn-outline-primary mt-3"
+                  >Voir la mission</a
+                >
+              }
+            </div>
+          </div>
+        }
+      }
+    } @else if (!loading()) {
+      <p class="text-muted">
+        Renseignez le profil et lancez l'analyse pour obtenir un classement intelligent des missions
+        ouvertes.
+      </p>
+    }
+  </div>
+</div>

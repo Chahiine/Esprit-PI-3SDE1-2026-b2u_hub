@@ -3,26 +3,26 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: b2u-backend-container
+  - job_name: b2u-backend-docker
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['backend:8081']
         labels:
-          environment: docker-compose
+          environment: docker
           service: b2u-backend
 
-  - job_name: b2u-backend-local
+  - job_name: b2u-backend-host-local
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['host.docker.internal:8081']
         labels:
-          environment: local
+          environment: local-intellij
           service: b2u-backend
 
-  - job_name: b2u-backend-docker
+  - job_name: b2u-backend-host-mapped
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['host.docker.internal:8082']
         labels:
-          environment: docker
+          environment: docker-mapped
           service: b2u-backend

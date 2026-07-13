@@ -1,0 +1,86 @@
+<div class="row mb-4">
+  <div class="col-lg-8">
+    <h2 class="mb-2">Espace entreprise — Missions</h2>
+    <p class="text-muted">
+      Gestion des offres publiées —
+      @if (sourceApi()) {
+        <strong>API Spring Boot</strong>
+      } @else {
+        backend indisponible
+      }.
+    </p>
+  </div>
+  <div class="col-lg-4 text-lg-end">
+    <a routerLink="/missions/consulter" class="btn btn-outline-secondary me-2"
+      >Vue étudiant</a
+    >
+    <a routerLink="/missions/entreprise/nouvelle" class="btn_one"
+      >Nouvelle mission <i class="ti-arrow-top-right"></i
+    ></a>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="single_tp p-3 mission-stat-card">
+      <h5 class="mb-1">{{ missions().length }}</h5>
+      <p class="text-muted small mb-0">Missions totales</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="single_tp p-3 mission-stat-card">
+      <h5 class="mb-1">{{ countOpen() }}</h5>
+      <p class="text-muted small mb-0">Ouvertes</p>
+    </div>
+  </div>
+</div>
+
+<div class="section-title mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+  <h3 class="mb-0">Liste des missions</h3>
+  <button type="button" class="btn btn-sm btn-outline-primary" (click)="loadMissions()">
+    Actualiser
+  </button>
+</div>
+
+@if (loading()) {
+  <p class="text-muted">Chargement…</p>
+} @else if (missions().length === 0) {
+  <p class="text-muted">
+    Aucune mission. Créez-en une via
+    <a routerLink="/missions/entreprise/nouvelle">Nouvelle mission</a>.
+  </p>
+} @else {
+  <p class="small text-muted mb-3">{{ missions().length }} mission(s) affichée(s)</p>
+  <div class="row g-4">
+    @for (m of missions(); track m.id) {
+      <div class="col-lg-6">
+        <div class="single_tp p-4 h-100 mission-card">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <h4 class="mb-0 mission-card-title">{{ m.title }}</h4>
+            <span class="badge bg-primary">{{ statutLabel(m.status) }}</span>
+          </div>
+          <p class="text-muted small mb-2">
+            <strong>{{ m.companyName }}</strong>
+            @if (m.location) {
+              — {{ m.location }}
+            }
+            @if (m.duration) {
+              · {{ m.duration }}
+            }
+          </p>
+          <p class="mb-2 mission-card-text">{{ m.description || '—' }}</p>
+          @if (m.skillsRequired) {
+            <p class="small mb-3">
+              <strong>Compétences :</strong> {{ m.skillsRequired }}
+            </p>
+          }
+          @if (m.id) {
+            <a [routerLink]="['/missions', m.id]" class="btn btn-sm btn-outline-primary"
+              >Voir le détail</a
+            >
+          }
+        </div>
+      </div>
+    }
+  </div>
+}

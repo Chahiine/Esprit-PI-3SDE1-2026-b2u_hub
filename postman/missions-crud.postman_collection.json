@@ -1,0 +1,179 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-missions-b2u-hub",
+    "name": "B2U-HUB Missions CRUD + IA",
+    "description": "Collection pour le module Gestion des missions (CRUD, recherche filtrée, IA description via API externe Gemini).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "AI — Match Missions (matching intelligent étudiant)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Chahine Sassi\",\n  \"studentEmail\": \"sassichahine68@gmail.com\",\n  \"skills\": \"Angular, Spring Boot, PostgreSQL, TypeScript\",\n  \"preferredLocation\": \"Tunis\",\n  \"maxResults\": 5\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/ai/match-missions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "ai", "match-missions"]
+        },
+        "description": "IA avancée DIFFÉRENTE du feedback : scores de compatibilité, forces, lacunes, recommandations. API externe Gemini ou moteur local."
+      }
+    },
+    {
+      "name": "AI — Suggest Mission Description (API externe Gemini)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Stage développeur Angular\",\n  \"companyName\": \"TechNova SAS\",\n  \"location\": \"Tunis\",\n  \"skillsRequired\": \"Angular, TypeScript, REST API\",\n  \"duration\": \"3 mois\",\n  \"externalLink\": \"https://technova.tn/careers/angular\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/ai/suggest-mission-description",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "ai", "suggest-mission-description"]
+        },
+        "description": "Appelle l'API externe Google Gemini si app.ai.gemini.enabled=true + clé API. Sinon fallback local."
+      }
+    },
+    {
+      "name": "Create Mission — Stage Angular",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Stage développeur Angular\",\n  \"description\": \"Participation au développement du portail B2U-HUB (composants Angular, intégration API REST).\",\n  \"companyName\": \"TechNova SAS\",\n  \"location\": \"Tunis\",\n  \"skillsRequired\": \"Angular, TypeScript, HTML/CSS\",\n  \"duration\": \"3 mois\",\n  \"status\": \"OPEN\",\n  \"companyEmail\": \"hr@technova.tn\",\n  \"externalLink\": \"https://technova.tn/careers/angular\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/missions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "missions"]
+        }
+      }
+    },
+    {
+      "name": "Create Mission — Stage Spring Boot",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Stage développeur Spring Boot\",\n  \"description\": \"Développement d'API REST, intégration PostgreSQL et tests unitaires.\",\n  \"companyName\": \"InnoSoft\",\n  \"location\": \"Sfax\",\n  \"skillsRequired\": \"Java, Spring Boot, PostgreSQL\",\n  \"duration\": \"4 mois\",\n  \"status\": \"OPEN\",\n  \"companyEmail\": \"contact@innosoft.tn\",\n  \"externalLink\": \"https://innosoft.tn/jobs/spring\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/missions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "missions"]
+        }
+      }
+    },
+    {
+      "name": "Get All Missions",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/missions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "missions"]
+        }
+      }
+    },
+    {
+      "name": "Search Missions — keyword + location + status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/missions?keyword=angular&location=Tunis&status=OPEN&skills=TypeScript&companyName=TechNova",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "missions"],
+          "query": [
+            { "key": "keyword", "value": "angular" },
+            { "key": "location", "value": "Tunis" },
+            { "key": "status", "value": "OPEN" },
+            { "key": "skills", "value": "TypeScript" },
+            { "key": "companyName", "value": "TechNova" }
+          ]
+        },
+        "description": "Recherche filtrée : titre, description, entreprise, compétences, localisation, statut."
+      }
+    },
+    {
+      "name": "Get Mission By ID",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/missions/{{missionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "missions", "{{missionId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Mission",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Stage Angular — B2U-HUB\",\n  \"description\": \"Mission mise à jour : module missions + intégration IA.\",\n  \"companyName\": \"TechNova SAS\",\n  \"location\": \"Tunis\",\n  \"skillsRequired\": \"Angular, Spring Boot, PostgreSQL\",\n  \"duration\": \"6 mois\",\n  \"status\": \"IN_PROGRESS\",\n  \"companyEmail\": \"hr@technova.tn\",\n  \"externalLink\": \"https://technova.tn/careers/b2u-hub\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/missions/{{missionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "missions", "{{missionId}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Mission",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{baseUrl}}/api/missions/{{missionId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "missions", "{{missionId}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "missionId",
+      "value": "1"
+    }
+  ]
+}

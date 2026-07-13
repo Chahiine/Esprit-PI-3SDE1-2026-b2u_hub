@@ -17,5 +17,7 @@ USER spring:spring
 
 COPY --from=build /app/target/*.jar app.jar
 
+ENV SPRING_PROFILES_ACTIVE=docker
+
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

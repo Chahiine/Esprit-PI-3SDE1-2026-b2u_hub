@@ -1,0 +1,126 @@
+<div class="row mb-3">
+  <div class="col">
+    <a routerLink="/missions/entreprise" class="btn btn-link ps-0">← Retour à la liste</a>
+    <h2 class="mb-2">Publier une mission</h2>
+    <p class="text-muted">
+      Tâche avancée : assistant <strong>IA B2U-HUB</strong> via
+      <strong>API externe Gemini</strong> pour rédiger la description.
+    </p>
+  </div>
+</div>
+
+<form [formGroup]="form" (ngSubmit)="publier()">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Titre de la mission</label>
+        <input class="form-control" formControlName="title" placeholder="Stage développeur Angular" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label fw-semibold">Entreprise</label>
+        <input class="form-control" formControlName="companyName" placeholder="TechNova SAS" />
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Localisation</label>
+          <input class="form-control" formControlName="location" placeholder="Tunis" />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Durée</label>
+          <input class="form-control" formControlName="duration" placeholder="3 mois" />
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Compétences requises</label>
+        <input
+          class="form-control"
+          formControlName="skillsRequired"
+          placeholder="Angular, Spring Boot, PostgreSQL"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">E-mail entreprise</label>
+        <input
+          class="form-control"
+          type="email"
+          formControlName="companyEmail"
+          placeholder="hr@technova.tn"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Lien externe (optionnel)</label>
+        <input
+          class="form-control"
+          formControlName="externalLink"
+          placeholder="https://technova.tn/careers/angular"
+        />
+        <p class="small text-muted mb-0">LinkedIn, site carrière, etc.</p>
+      </div>
+
+      <div class="mb-3 p-3 border rounded" style="background: #f8f9fc">
+        <h5 class="mb-2">Assistant IA — description de mission</h5>
+        <p class="small text-muted mb-2">
+          Appel API externe Google Gemini (ou repli local si non configuré).
+        </p>
+        <button
+          type="button"
+          class="btn_one"
+          [disabled]="aiLoading()"
+          (click)="genererDescriptionIa()"
+        >
+          @if (aiLoading()) {
+            Génération en cours…
+          } @else {
+            Générer la description avec l’IA
+          }
+        </button>
+        @if (aiError()) {
+          <p class="text-danger small mt-2 mb-0">{{ aiError() }}</p>
+        }
+        @if (aiResult(); as ai) {
+          <div class="mt-3 small">
+            <p class="mb-1"><strong>Modèle :</strong> {{ ai.modelLabel }}</p>
+            <p class="mb-1"><strong>API :</strong> {{ ai.externalApiUrl }}</p>
+            <p class="mb-0 text-muted">{{ ai.insightSummary }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Description</label>
+        <textarea
+          class="form-control"
+          rows="6"
+          formControlName="description"
+          placeholder="Description complète de la mission…"
+        ></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Statut</label>
+        <select class="form-control" formControlName="status">
+          <option value="OPEN">Ouverte</option>
+          <option value="IN_PROGRESS">En cours</option>
+          <option value="CLOSED">Clôturée</option>
+        </select>
+      </div>
+
+      @if (saveError()) {
+        <div class="alert alert-danger">{{ saveError() }}</div>
+      }
+
+      <button type="submit" class="btn_one" [disabled]="saving()">
+        @if (saving()) {
+          Publication…
+        } @else {
+          Publier la mission
+        }
+      </button>
+    </div>
+  </div>
+</form>

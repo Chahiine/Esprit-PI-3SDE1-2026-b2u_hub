@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: b2u-postgres
+  namespace: b2u-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: b2u-postgres
+  template:
+    metadata:
+      labels:
+        app: b2u-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: "0000"
+            - name: POSTGRES_DB
+              value: b2u_hub
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: b2u-hub
+spec:
+  selector:
+    app: b2u-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

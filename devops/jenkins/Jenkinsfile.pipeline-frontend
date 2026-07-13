@@ -61,8 +61,7 @@ pipeline {
 
         stage('Deploy Frontend') {
             steps {
-                sh 'docker rm -f ' + CONTAINER_NAME + ' 2>/dev/null || true'
-                sh 'docker run -d --name ' + CONTAINER_NAME + ' -p ' + FRONTEND_PORT + ':80 --restart unless-stopped ' + FRONTEND_IMAGE + ':latest'
+                sh 'docker compose -f devops/docker-compose.apps.yml up -d --build frontend'
             }
         }
     }

@@ -1,7 +1,59 @@
-# Jenkins + SonarQube — Windows + Docker Desktop
-# Demarrage : .\devops\start-devops.ps1
+# B2U-HUB — Stack complete : App + Jenkins + SonarQube + Prometheus + Grafana
+# Usage : .\devops\start-full-stack.ps1
 
 services:
+  # --- Application ---
+  postgres:
+    image: postgres:16-alpine
+    container_name: b2u-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "0000"
+      POSTGRES_DB: b2u_hub
+    ports:
+      - "5433:5432"
+    volumes:
+      - b2u_pg_data:/var/lib/postgresql/data
+    networks:
+      - b2u-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d b2u_hub"]
+      interval: 10s
+      timeout: 5s
+      retries: 8
+
+  backend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.backend
+    image: b2u-hub-backend:latest
+    container_name: b2u-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8082:8081"
+    networks:
+      - b2u-net
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: b2u-hub-frontend:latest
+    container_name: b2u-frontend
+    depends_on:
+      - backend
+    ports:
+      - "4201:80"
+    networks:
+      - b2u-net
+    restart: unless-stopped
+
+  # --- DevOps ---
   sonar-db:
     image: postgres:15-alpine
     container_name: b2u-sonar-db
@@ -12,7 +64,7 @@ services:
     volumes:
       - sonar_db_data:/var/lib/postgresql/data
     networks:
-      - devops-net
+      - b2u-net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sonar -d sonar"]
       interval: 10s
@@ -36,7 +88,7 @@ services:
       - sonar_extensions:/opt/sonarqube/extensions
       - sonar_logs:/opt/sonarqube/logs
     networks:
-      - devops-net
+      - b2u-net
 
   jenkins:
     build:
@@ -52,27 +104,26 @@ services:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - DOCKER_HOST=unix:///var/run/docker.sock
+      DOCKER_HOST: unix:///var/run/docker.sock
     networks:
-      - devops-net
+      - b2u-net
 
   prometheus:
     image: prom/prometheus:v2.55.1
     container_name: b2u-prometheus
+    depends_on:
+      - backend
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/prometheus.docker.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
       - --web.enable-lifecycle
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     networks:
-      - devops-net
-      - b2u-external
+      - b2u-net
 
   grafana:
     image: grafana/grafana:11.4.0
@@ -89,9 +140,10 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
     networks:
-      - devops-net
+      - b2u-net
 
 volumes:
+  b2u_pg_data:
   sonar_db_data:
   sonar_data:
   sonar_extensions:
@@ -101,8 +153,6 @@ volumes:
   grafana_data:
 
 networks:
-  devops-net:
-    driver: bridge
-  b2u-external:
-    external: true
+  b2u-net:
     name: b2u-net
+    driver: bridge

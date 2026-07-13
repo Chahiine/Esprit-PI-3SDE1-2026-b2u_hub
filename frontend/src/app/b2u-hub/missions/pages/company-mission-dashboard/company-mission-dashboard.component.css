@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  color: #212529;
+}
+
+.mission-stat-card h5 {
+  color: #212529;
+  font-weight: 700;
+}
+
+.mission-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.mission-card-title,
+.mission-card-text {
+  color: #212529 !important;
+}
+
+.mission-card-text {
+  max-height: 4.5em;
+  overflow: hidden;
+}

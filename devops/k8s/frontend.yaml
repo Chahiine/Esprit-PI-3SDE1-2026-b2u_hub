@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: b2u-frontend
+  namespace: b2u-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: b2u-frontend
+  template:
+    metadata:
+      labels:
+        app: b2u-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: b2u-hub-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: b2u-hub
+spec:
+  type: NodePort
+  selector:
+    app: b2u-frontend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30421

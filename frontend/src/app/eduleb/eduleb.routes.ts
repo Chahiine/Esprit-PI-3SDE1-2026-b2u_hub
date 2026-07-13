@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { evaluationChildRoutes } from '../b2u-hub/evaluation/evaluation.routes';
+import { missionChildRoutes } from '../b2u-hub/missions/mission.routes';
 
 export const edulebRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -85,6 +86,14 @@ export const edulebRoutes: Routes = [
         (m) => m.EvaluationShellComponent,
       ),
     children: evaluationChildRoutes,
+  },
+  {
+    path: 'missions',
+    loadComponent: () =>
+      import('../b2u-hub/missions/mission-shell.component').then(
+        (m) => m.MissionShellComponent,
+      ),
+    children: missionChildRoutes,
   },
   {
     path: 'not-found',

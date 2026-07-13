@@ -1,0 +1,107 @@
+<div class="row mb-4">
+  <div class="col-lg-8">
+    <h2 class="mb-2">Consulter les missions</h2>
+    <p class="text-muted">
+      Recherche filtrée —
+      @if (sourceApi()) {
+        <strong>API Spring Boot + PostgreSQL</strong>
+      } @else {
+        backend indisponible (démarrez IntelliJ sur le port 8081)
+      }.
+    </p>
+  </div>
+  <div class="col-lg-4 text-lg-end">
+    <a routerLink="/missions/entreprise" class="btn btn-outline-secondary me-2"
+      >Espace entreprise</a
+    >
+    <a routerLink="/missions/etudiant/matching" class="btn btn-outline-primary me-2"
+      >IA Matching</a
+    >
+    <a routerLink="/missions/entreprise/nouvelle" class="btn_one"
+      >Publier une mission <i class="ti-arrow-top-right"></i
+    ></a>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Filtres</h5>
+    <form [formGroup]="filters" (ngSubmit)="rechercher()">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Mot-clé</label>
+          <input class="form-control" formControlName="keyword" placeholder="titre, compétence…" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Localisation</label>
+          <input class="form-control" formControlName="location" placeholder="Tunis, Sfax…" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Statut</label>
+          <select class="form-control" formControlName="status">
+            <option value="">Tous</option>
+            <option value="OPEN">Ouverte</option>
+            <option value="IN_PROGRESS">En cours</option>
+            <option value="CLOSED">Clôturée</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Compétences</label>
+          <input class="form-control" formControlName="skills" placeholder="Angular, Java…" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Entreprise</label>
+          <input class="form-control" formControlName="companyName" placeholder="TechNova…" />
+        </div>
+        <div class="col-md-4 d-flex align-items-end gap-2">
+          <button type="submit" class="btn_one">Rechercher</button>
+          <button type="button" class="btn btn-outline-secondary" (click)="reinitialiser()">
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+@if (loading()) {
+  <p class="text-muted">Chargement…</p>
+} @else if (missions().length === 0) {
+  <p class="text-muted">
+    Aucune mission trouvée. Publiez-en une via
+    <a routerLink="/missions/entreprise/nouvelle">Publier une mission</a>
+    ou Postman (POST /api/missions).
+  </p>
+} @else {
+  <p class="small text-muted mb-3">{{ missions().length }} mission(s)</p>
+  <div class="row g-4">
+    @for (m of missions(); track m.id) {
+      <div class="col-lg-6">
+        <div class="single_tp p-4 h-100" style="border: 1px solid #eee; border-radius: 8px">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <h4 class="mb-0">{{ m.title }}</h4>
+            <span class="badge bg-primary">{{ statutLabel(m.status) }}</span>
+          </div>
+          <p class="text-muted small mb-2">
+            <strong>{{ m.companyName }}</strong>
+            @if (m.location) {
+              — {{ m.location }}
+            }
+            @if (m.duration) {
+              · {{ m.duration }}
+            }
+          </p>
+          <p class="mb-3" style="max-height: 4.5em; overflow: hidden">
+            {{ m.description || '—' }}
+          </p>
+          @if (m.skillsRequired) {
+            <p class="small mb-2"><strong>Compétences :</strong> {{ m.skillsRequired }}</p>
+          }
+          <a [routerLink]="['/missions', m.id]" class="btn btn-sm btn-outline-primary"
+            >Voir le détail</a
+          >
+        </div>
+      </div>
+    }
+  </div>
+}

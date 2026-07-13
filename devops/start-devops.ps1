@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
 Write-Host "=== Demarrage Jenkins + SonarQube + Prometheus + Grafana ===" -ForegroundColor Cyan
+Write-Host "Astuce : stack complete -> .\start-full-stack.ps1" -ForegroundColor DarkGray
 docker compose -f docker-compose.devops.yml up -d --build
 
 Write-Host ""
